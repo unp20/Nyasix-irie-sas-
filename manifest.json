@@ -1,0 +1,174 @@
+{
+  "name": "UNP Tours - Nungwi Zanzibar",
+  "short_name": "UNP Tours",
+  "description": "Gundua uzuri wa Nungwi, Zanzibar ukiwa na UNP Tours. Safari, usafiri, na ukodishaji wa vifaa.",
+  "lang": "sw",
+  "dir": "ltr",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
+  "background_color": "#0f172a",
+  "theme_color": "#0d1b2a",
+  "orientation": "any",
+  "categories": ["travel", "tourism", "lifestyle"],
+  "iarc_rating_id": "urn:liv:standard",
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "playstore",
+      "url": "https://play.google.com/store/apps/details?id=com.unptours.app",
+      "id": "com.unptours.app"
+    }
+  ],
+  "scope_extensions": [
+    {
+      "origin": "https://*.unp.tours"
+    }
+  ],
+  "note_taking": {
+    "new_note_url": "/contact.html?action=note"
+  },
+  "launch_handler": {
+    "client_mode": "auto"
+  },
+  "handle_links": "preferred",
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "application/pdf": [".pdf"],
+        "image/png": [".png"],
+        "image/jpeg": [".jpg", ".jpeg"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "/contact.html",
+    "method": "GET",
+    "params": {
+      "title": "name",
+      "text": "description",
+      "url": "link"
+    }
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+unptours",
+      "url": "/?tour=%s"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/assets/icons/icon-48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Weka Nafasi",
+      "short_name": "Booking",
+      "description": "Weka nafasi ya safari au usafiri haraka",
+      "url": "/contact.html",
+      "icons": [{ "src": "/assets/icons/shortcut-booking.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Wasiliana Nasi",
+      "short_name": "Contact",
+      "description": "Wasiliana na ofisi yetu iliyopo Nungwi, Zanzibar",
+      "url": "/contact.html",
+      "icons": [{ "src": "/assets/icons/shortcut-contact.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Safari Zetu",
+      "short_name": "Tours",
+      "description": "Angalia orodha ya safari zinazopatikana Nungwi",
+      "url": "/#tours",
+      "icons": [{ "src": "/assets/icons/shortcut-tours.png", "sizes": "96x96", "type": "image/png" }]
+    },
+    {
+      "name": "Ukodishaji Vifaa",
+      "short_name": "Rentals",
+      "description": "Kodi magari, pikipiki na vifaa vya ufukweni",
+      "url": "/rentals.html",
+      "icons": [{ "src": "/assets/icons/shortcut-rentals.png", "sizes": "96x96", "type": "image/png" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/screenshots/mobile-shot.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mwonekano wa UNP Tours kwenye Simu"
+    },
+    {
+      "src": "/assets/screenshots/tablet-shot.png",
+      "sizes": "1024x768",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Mwonekano wa UNP Tours kwenye Kompyuta Kibao"
+    },
+    {
+      "src": "/assets/screenshots/desktop-shot.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Mwonekano wa UNP Tours kwenye Kompyuta"
+    }
+  ]
+}

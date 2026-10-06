@@ -1,0 +1,63 @@
+  /* --- Responsive & Media Query Variants (Examples) --- */
+  @media (min-width: 475px) {
+    .xs\:scale-105 { transform: scale(1.05); }
+    .xs\:rotate-45 { transform: rotate(45deg); }
+    .xs\:opacity-100 { opacity: 1; }
+  }
+
+  @media (min-width: 640px) {
+    .sm\:scale-105 { transform: scale(1.05); }
+    .sm\:rotate-45 { transform: rotate(45deg); }
+    .sm\:opacity-100 { opacity: 1; }
+  }
+
+  @media (min-width: 768px) {
+    .md\:scale-105 { transform: scale(1.05); }
+    .md\:rotate-45 { transform: rotate(45deg); }
+    .md\:opacity-100 { opacity: 1; }
+  }
+
+  @media (min-width: 1024px) {
+    .lg\:scale-105 { transform: scale(1.05); }
+    .lg\:rotate-45 { transform: rotate(45deg); }
+    .lg\:opacity-100 { opacity: 1; }
+  }
+
+  /* --- Dark Mode Variants --- */
+  @media (prefers-color-scheme: dark) {
+    .dark\:scale-105 { transform: scale(1.05); }
+    .dark\:opacity-100 { opacity: 1; }
+    .dark\:bg-dark { background-color: var(--color-dark); }
+  }
+
+  /* --- Motion Safe & Reduce Preferences --- */
+  @media (prefers-reduced-motion: reduce) {
+    .motion-reduce\:transition-none {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .motion-safe\:transition {
+      transition: all 0.3s ease;
+    }
+  }
+
+  /* --- Print Variants --- */
+  @media print {
+    .print\:hidden { display: none !important; }
+    .print\:transition-none { transition: none !important; }
+  }
+}
+
+/* ==========================================================================
+   Documentation & Testing Notes (Enterprise Utilities V3)
+   ========================================================================== */
+/*
+  [README & Integration Guide Summary]
+  - Integration: Unganisha faili hili kuu la CSS kwenye mfumo wako wa mradi (k.o GitHub Pages / Firebase setup).
+  - Naming Convention: Tumia umbizo la kawaida la utility classes (k.o .translate-x-1\/2, .rotate-45, .duration-300).
+  - Accessibility: Hakikisha [aria-hidden="true"] haizuii focus na [aria-disabled="true"] inatumika ipasavyo.
+  - Browser Support: Inafanya kazi kwenye vivinjari vyote vya kisasa vinavyounga mkono CSS Custom Properties na @layer.
+*/

@@ -1,0 +1,13 @@
+<div id="pwa-install-banner" class="install-banner" role="alert" aria-live="polite">
+  <!-- Ikoni ndogo ya App -->
+  <svg class="install-banner__icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+  </svg>
+  <div class="install-banner__content">
+    <p class="install-banner__text">Weka UNP Tours kwenye simu yako kwa matumizi ya haraka!</p>
+    <div class="install-banner__actions">
+      <button type="button" class="install-banner__button install-banner__button--primary" id="pwa-install-btn" aria-label="Weka App kwenye simu">Weka App</button>
+      <button type="button" class="install-banner__button install-banner__button--secondary" id="pwa-install-dismiss" aria-label="Funga bango hili">Baadaye</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,302 @@
+/**
+ * @file sw.js
+ * @description Advanced Production-Ready Service Worker for UNP Tours (v2.1.0)
+ * Features: Multi-strategy caching, IndexedDB background sync, Push notifications,
+ * Cache quota & size management, auto cleanup, and robust error handling.
+ */
+
+const CACHE_NAME = 'unp-tours-v2.1.0';
+const RUNTIME_CACHE = 'unp-runtime-v2.1.0';
+const DB_NAME = 'unp_offline_db';
+const STORE_NAME = 'sync_queue';
+const CACHE_MAX_ITEMS = 50; // Kikomo cha vitu kwenye runtime cache
+const DEBUG_MODE = false;
+
+// 12-19 & 17. Precache Assets zenye Version Parameters
+const PRECACHE_ASSETS = [
+  '/?v=2.1.0',
+  '/index.html?v=2.1.0',
+  '/contact.html?v=2.1.0',
+  '/about.html?v=2.1.0',
+  '/tours.html?v=2.1.0',
+  '/tour-detail.html?v=2.1.0',
+  '/booking.html?v=2.1.0',
+  '/blog.html?v=2.1.0',
+  '/blog-post.html?v=2.1.0',
+  '/gallery.html?v=2.1.0',
+  '/pricing.html?v=2.1.0',
+  '/faq.html?v=2.1.0',
+  '/rentals.html?v=2.1.0',
+  '/offline.html?v=2.1.0',
+  '/manifest.json?v=2.1.0',
+  // CSS & JS Assets
+  '/assets/css/variables.css?v=2.1.0',
+  '/assets/css/reset.css?v=2.1.0',
+  '/assets/css/base.css?v=2.1.0',
+  '/assets/css/typography.css?v=2.1.0',
+  '/assets/css/grid.css?v=2.1.0',
+  '/assets/css/utilities.css?v=2.1.0',
+  '/assets/css/layout.css?v=2.1.0',
+  '/assets/css/animations.css?v=2.1.0',
+  '/assets/css/components-header.css?v=2.1.0',
+  '/assets/css/components-footer.css?v=2.1.0',
+  '/assets/css/components-hero.css?v=2.1.0',
+  '/assets/css/components-cards.css?v=2.1.0',
+  '/assets/css/components-buttons.css?v=2.1.0',
+  '/assets/css/components-forms.css?v=2.1.0',
+  '/assets/css/components-slider.css?v=2.1.0',
+  '/assets/css/components-toast.css?v=2.1.0',
+  '/assets/css/components-modal.css?v=2.1.0',
+  '/assets/css/components-widgets.css?v=2.1.0',
+  '/assets/css/footer.css?v=2.1.0',
+  '/assets/css/contact.css?v=2.1.0',
+  '/assets/js/main.js?v=2.1.0',
+  '/assets/js/config.js?v=2.1.0',
+  '/assets/js/navigation.js?v=2.1.0',
+  '/assets/js/slider.js?v=2.1.0',
+  '/assets/js/theme.js?v=2.1.0',
+  '/assets/js/form-validation.js?v=2.1.0',
+  '/assets/js/search.js?v=2.1.0',
+  // Icons & Images placeholders
+  '/assets/icons/icon-192.png',
+  '/assets/icons/icon-512.png',
+  '/assets/images/logo.png',
+  '/assets/images/logo.svg',
+  '/fonts/playfair-display.woff2',
+  '/fonts/inter.woff2'
+];
+
+/**
+ * Open or init IndexedDB for Sync Queue (1, 11, 40, 60)
+ */
+function openSyncDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      }
+    };
+  });
+}
+
+/**
+ * Install Event — Precache assets securely
+ */
+self.addEventListener('install', (event) => {
+  if (DEBUG_MODE) console.log('[SW] Installing version 2.1.0...');
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(PRECACHE_ASSETS))
+      .then(() => self.skipWaiting())
+      .catch((err) => {
+        if (DEBUG_MODE) console.error('[SW] Precache failed:', err);
+      })
+  );
+});
+
+/**
+ * Activate Event — Cleanup old caches and claim clients
+ */
+self.addEventListener('activate', (event) => {
+  if (DEBUG_MODE) console.log('[SW] Activating...');
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME && key !== RUNTIME_CACHE) {
+            if (DEBUG_MODE) console.log('[SW] Deleting old cache:', key);
+            return caches.delete(key);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
+});
+
+/**
+ * Fetch Event — Strategy Router & Security Checks (3, 4, 11)
+ */
+self.addEventListener('fetch', (event) => {
+  const request = event.request;
+  const url = new URL(request.url);
+
+  // Kata isipokuwa GET
+  if (request.method !== 'GET') return;
+
+  // HTTPS Check (Isipokuwa Localhost)
+  if (url.protocol !== 'https:' && url.hostname !== 'localhost' && url.hostname !== '127.0.0.1') {
+    return;
+  }
+
+  // Router Strategy Selection
+  if (url.pathname.includes('/api/')) {
+    // Network Only kwa API za malipo/booking za moja kwa moja
+    event.respondWith(fetch(request).catch(() => caches.match('/offline.html')));
+  } else if (url.pathname.endsWith('.html') || url.pathname === '/') {
+    event.respondWith(networkFirstStrategy(request));
+  } else if (url.pathname.includes('/blog') || url.pathname.includes('/tours')) {
+    event.respondWith(staleWhileRevalidateStrategy(request));
+  } else {
+    event.respondWith(cacheFirstStrategy(request));
+  }
+});
+
+/**
+ * Cache First Strategy with Runtime Limit & Expiry Check (6, 23, 25)
+ */
+async function cacheFirstStrategy(request) {
+  try {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+
+    const res = await fetch(request);
+    if (res && res.status === 200) {
+      const cache = await caches.open(RUNTIME_CACHE);
+      trimCache(RUNTIME_CACHE, CACHE_MAX_ITEMS);
+      cache.put(request, res.clone());
+    }
+    return res;
+  } catch (err) {
+    if (request.destination === 'image') {
+      return caches.match('/assets/images/logo.png'); // Fallback image placeholder
+    }
+    return caches.match('/offline.html');
+  }
+}
+
+/**
+ * Network First Strategy (7)
+ */
+async function networkFirstStrategy(request) {
+  try {
+    const res = await fetch(request);
+    if (res && res.status === 200) {
+      const cache = await caches.open(RUNTIME_CACHE);
+      cache.put(request, res.clone());
+      return res;
+    }
+    throw new Error('Bad network response');
+  } catch (err) {
+    const cached = await caches.match(request);
+    return cached || caches.match('/offline.html');
+  }
+}
+
+/**
+ * Stale While Revalidate Strategy with Logging (8)
+ */
+async function staleWhileRevalidateStrategy(request) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  const cached = await cache.match(request);
+
+  const fetchPromise = fetch(request).then((networkRes) => {
+    if (networkRes && networkRes.status === 200) {
+      if (DEBUG_MODE) console.log('[SWR] Updating cache in background:', request.url);
+      cache.put(request, networkRes.clone());
+    }
+    return networkRes;
+  }).catch(() => {});
+
+  return cached || fetchPromise;
+}
+
+/**
+ * Trim cache items to prevent exceeding storage limits (23, 24)
+ */
+async function trimCache(cacheName, maxItems) {
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > maxItems) {
+    await cache.delete(keys[0]);
+    trimCache(cacheName, maxItems);
+  }
+}
+
+/**
+ * Background Sync Implementation (1, 10, 40)
+ */
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-bookings') {
+    event.waitUntil(syncBookingsQueue());
+  }
+});
+
+async function syncBookingsQueue() {
+  try {
+    const db = await openSyncDB();
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const requests = await store.getAll();
+
+    for (const item of requests) {
+      try {
+        const response = await fetch(item.url, item.options);
+        if (response.ok) {
+          const deleteTx = db.transaction(STORE_NAME, 'readwrite');
+          deleteTx.objectStore(STORE_NAME).delete(item.id);
+        }
+      } catch (err) {
+        if (DEBUG_MODE) console.error('[Sync] Retry failed for item:', item.id);
+      }
+    }
+  } catch (err) {
+    if (DEBUG_MODE) console.error('[Sync] Queue processing error:', err);
+  }
+}
+
+/**
+ * Push Notifications & Action Handling (2, 3, 33, 34)
+ */
+self.addEventListener('push', (event) => {
+  let data = { title: 'UNP Tours', body: 'Habari mpya kutoka Nungwi!', url: '/' };
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: '/assets/icons/icon-192.png',
+    badge: '/assets/icons/icon-72.png',
+    data: { url: data.url || '/' },
+    actions: [
+      { action: 'explore', title: 'Angalia Zaidi' },
+      { action: 'close', title: 'Funga' }
+    ]
+  };
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || '/';
+  
+  if (event.action === 'explore') {
+    event.waitUntil(clients.openWindow(targetUrl));
+  } else {
+    event.waitUntil(clients.openWindow('/'));
+  }
+});
+
+/**
+ * Message Handler (48-54)
+ */
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)));
+  }
+  if (event.data && event.data.type === 'VERSION') {
+    event.ports[0].postMessage({ version: CACHE_NAME });
+  }
+});

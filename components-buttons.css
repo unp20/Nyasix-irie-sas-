@@ -1,0 +1,442 @@
+/* ==========================================================
+   UNP TOURS — ADVANCED COMPONENTS-BUTTONS.CSS (Master V2)
+   ========================================================== */
+
+/* 1. CSS VARIABLES FOR BUTTONS & THEME STABILITY */
+:root {
+  --btn-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --btn-radius: 8px;
+  --btn-pill-radius: 50px;
+  --success-color: #2e7d32;
+  --success-hover: #1b5e20;
+  --error-color: #c62828;
+  --error-hover: #b71c1c;
+  --spinner-color: currentColor; /* Imezibitiwa kutumia rangi sahihi ya maandishi */
+  --gold-primary: #d4af37;
+  --gold-gradient: linear-gradient(135deg, #d4af37 0%, #aa771c 100%);
+  --dark-gradient: linear-gradient(135deg, #0d1b2a 0%, #032b1a 100%);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* 2. BASE BUTTON TRANSITION & STYLES */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: var(--btn-radius);
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  transition: var(--btn-transition);
+  user-select: none;
+  background-color: var(--primary-color, #032b1a);
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 3. FOCUS-VISIBLE & TACTILE PRESS FEEDBACK (Bila kusumbua mouse clicks) */
+.btn:focus {
+  outline: none;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--gold-primary);
+  outline-offset: 2px;
+}
+
+.btn-press:active {
+  transform: scale(0.97) translateY(0);
+}
+
+.btn-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 4. DISABLED & LOADING STATES (Bila kutumia !important) */
+.btn:disabled,
+.btn.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-loading {
+  color: transparent !important;
+  pointer-events: none;
+}
+
+/* Spinner ya kawaida */
+.btn-loading::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--spinner-color);
+  border-radius: 50%;
+  animation: btn-spin 0.75s linear infinite;
+}
+
+@keyframes btn-spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Loading za Ziada: Dots & Bar */
+.btn-loading-dots::after {
+  content: "• • •";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  letter-spacing: 4px;
+  color: #ffffff;
+  animation: btn-pulse-dots 1s infinite alternate;
+}
+
+@keyframes btn-pulse-dots {
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.btn-loading-bar::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--gold-primary);
+  animation: btn-bar-move 1.2s infinite linear;
+}
+
+@keyframes btn-bar-move {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 5. UKUBWA WA VITUFE (Sizes & Line-Heights) */
+.btn-xs {
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+.btn-lg {
+  padding: 14px 28px;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.btn-xl {
+  padding: 16px 36px;
+  font-size: 1.25rem;
+  line-height: 1.6;
+}
+
+/* 6. AINA NA MITINDO YA VITUFE (Variants) */
+.btn-text {
+  background: transparent;
+  color: var(--primary-color, #032b1a);
+  border: none;
+  padding: 6px 12px;
+}
+.btn-text:hover {
+  color: var(--gold-primary);
+  background: transparent;
+  transform: none;
+  box-shadow: none;
+  text-decoration: underline;
+}
+
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--primary-color, #032b1a);
+  padding: 0;
+  text-decoration: underline;
+  font-weight: 500;
+}
+.btn-link:hover {
+  color: var(--gold-primary);
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-outline {
+  background: transparent;
+  border-color: currentColor;
+  color: var(--primary-color, #032b1a);
+}
+.btn-outline:hover {
+  background: var(--primary-color, #032b1a);
+  color: #ffffff;
+}
+
+.btn-outline-gold {
+  background: transparent;
+  border-color: var(--gold-primary);
+  color: var(--gold-primary);
+}
+.btn-outline-gold:hover {
+  background: var(--gold-primary);
+  color: #032b1a;
+}
+
+.btn-ghost {
+  background: rgba(0, 0, 0, 0.05);
+  color: inherit;
+  border: none;
+}
+.btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.btn-subtle {
+  background: rgba(3, 43, 26, 0.08);
+  color: var(--primary-color, #032b1a);
+  border: none;
+}
+.btn-subtle:hover {
+  background: rgba(3, 43, 26, 0.15);
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  color: #ffffff;
+}
+.btn-success:hover {
+  background-color: var(--success-hover);
+}
+
+.btn-error {
+  background-color: var(--error-color);
+  color: #ffffff;
+}
+.btn-error:hover {
+  background-color: var(--error-hover);
+}
+
+.btn-gradient-gold {
+  background: var(--gold-gradient);
+  color: #032b1a;
+  font-weight: 700;
+  border: none;
+}
+.btn-gradient-gold:hover {
+  opacity: 0.95;
+  filter: brightness(1.05);
+}
+
+.btn-gradient-dark {
+  background: var(--dark-gradient);
+  color: #ffffff;
+  font-weight: 700;
+  border: none;
+}
+.btn-gradient-dark:hover {
+  filter: brightness(1.1);
+}
+
+/* Toggle & Badge States */
+.btn-toggle {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+.btn-toggle.active {
+  background-color: var(--primary-color, #032b1a);
+  color: #ffffff;
+}
+
+.btn-badge {
+  position: relative;
+}
+.btn-badge::after {
+  content: attr(data-badge);
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: var(--error-color);
+  color: #ffffff;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  padding: 4px;
+}
+.btn-close:hover {
+  opacity: 1;
+}
+
+/* 7. ICON, PILL, BLOCK, GROUPS & SOCIALS */
+.btn-icon {
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-pill {
+  border-radius: var(--btn-pill-radius);
+}
+
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+.btn-block-mobile {
+  display: inline-flex;
+}
+
+/* Button Group (Ilirekebishwa border isijitegemee rangi nyeupe pekee) */
+.btn-group {
+  display: inline-flex;
+  border-radius: var(--btn-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.btn-group .btn {
+  border-radius: 0;
+  border: none;
+  border-right: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.btn-group .btn:last-child {
+  border-right: none;
+}
+
+/* Social Media Buttons */
+.btn-social.whatsapp { background-color: #25d366; color: #ffffff; }
+.btn-social.whatsapp:hover { background-color: #20ba5a; }
+
+.btn-social.facebook { background-color: #1877f2; color: #ffffff; }
+.btn-social.facebook:hover { background-color: #145dbf; }
+
+.btn-social.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: #ffffff; }
+.btn-social.instagram:hover { opacity: 0.9; }
+
+/* Floating Action Button (FAB) */
+.btn-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #25d366;
+  color: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+.btn-fab:hover {
+  transform: scale(1.08) translateY(-3px);
+  background-color: #20ba5a;
+}
+
+/* 8. ACCESSIBILITY: PREFERS-REDUCED-MOTION */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn:hover,
+  .btn-press:active,
+  .btn-lift:hover {
+    transition: none !important;
+    transform: none !important;
+  }
+  .btn-loading::after,
+  .btn-loading-bar::before {
+    animation: none !important;
+  }
+}
+
+/* 9. RESPONSIVE MEDIA QUERIES (Simu & Tablets) */
+@media (max-width: 768px) {
+  .btn-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px; /* Touch target bora zaidi kwa simu */
+  }
+
+  .btn-group {
+    display: flex;
+    flex-direction: column; /* Vikundi vya vitufe vinapangana wima kwenye skrini ndogo */
+    width: 100%;
+  }
+
+  .btn-group .btn {
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+    width: 100%;
+  }
+
+  .btn-group .btn:last-child {
+    border-bottom: none;
+  }
+
+  .btn-fab {
+    bottom: 16px;
+    right: 16px;
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-block-mobile {
+    display: flex;
+    width: 100%;
+  }
+}

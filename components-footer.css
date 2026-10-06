@@ -1,0 +1,211 @@
+/* ==========================================================
+   UNP TOURS — GLOBAL COMPLIANCE & ACCESSIBILITY EXTENSION (Master V3)
+   ========================================================== */
+
+/* 1. Cookie Consent Banner (Ujumbe wa ruhusa ya vidakuzi / GDPR) */
+.cookie-consent-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--dark-green, #032b1a);
+  border-top: 1px solid var(--gold-border, #d4af37);
+  padding: var(--spacing-md, 16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md, 16px);
+  z-index: 1050; /* Z-index thabiti kuzuia migongano */
+  box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.2));
+  transform: translateY(100%);
+  transition: transform var(--transition-normal, 0.3s ease);
+}
+
+.cookie-consent-banner.show {
+  transform: translateY(0);
+}
+
+.cookie-text {
+  font-size: var(--text-xs, 0.85rem);
+  color: #cbd5e1;
+  line-height: var(--leading-relaxed, 1.6);
+  max-width: 65ch; /* Usomaji bora kwenye skrini kubwa */
+}
+
+.cookie-buttons {
+  display: flex;
+  gap: var(--spacing-xs, 8px);
+  flex-shrink: 0;
+}
+
+/* 2. Age Verification Modal (Kuhakiki umri kabla ya huduma fulani) */
+.age-verification-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(3, 25, 15, 0.85);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1060; /* Juu zaidi kuliko banner */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-normal, 0.3s ease), visibility var(--transition-normal, 0.3s ease);
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.age-verification-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.age-verification-card {
+  background: var(--dark-green, #032b1a);
+  border: 1px solid var(--gold-border, #d4af37);
+  padding: var(--spacing-xl, 32px);
+  border-radius: var(--radius-lg, 12px);
+  text-align: center;
+  max-width: 400px;
+  max-height: 90vh; /* Kuzuia kadi kuvuja nje ya skrini */
+  overflow-y: auto;  /* Kuruhusu scroll ndani ya kadi kama ni ndefu */
+  width: 100%;
+  box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.3));
+}
+
+/* 3. Accessibility Widget (Uwezo wa kusaidia kubadilisha ukubwa wa maandishi/mwanga) */
+.accessibility-widget-btn {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  background: var(--royal-gold, #d4af37);
+  color: var(--dark-green, #032b1a);
+  padding: 12px;
+  border-radius: 0 var(--radius-md, 8px) var(--radius-md, 8px) 0;
+  z-index: 1020; /* Imekaa kwenye ngazi salama ya sticky elements */
+  cursor: pointer;
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.15));
+  border: none;
+  font-size: 18px;
+  transition: background var(--transition-fast, 0.15s ease);
+}
+
+.accessibility-widget-btn:hover {
+  background: var(--pure-white, #ffffff);
+}
+
+.accessibility-widget-btn:focus-visible {
+  outline: 3px solid var(--royal-gold, #d4af37);
+  outline-offset: 2px;
+}
+
+/* 4. AI Chatbot Widget Container (Sehemu ya mazungumzo ya papo hapo) */
+.ai-chatbot-container {
+  position: fixed;
+  bottom: 90px;
+  right: 30px;
+  width: 350px;
+  max-height: 500px;
+  background: var(--dark-green, #032b1a);
+  border: 1px solid var(--gold-border, #d4af37);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.25));
+  display: flex;
+  flex-direction: column;
+  z-index: 1055;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(40px) scale(0.95);
+  transition: opacity var(--transition-normal, 0.3s ease), transform var(--transition-normal, 0.3s ease), visibility var(--transition-normal, 0.3s ease);
+}
+
+.ai-chatbot-container.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+/* 5. Multi-Currency Price Tag Styling (Badilisho la bei za sarafu tofauti) */
+.price-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--font-serif, serif);
+  color: var(--royal-gold, #d4af37);
+  font-weight: var(--weight-bold, 700);
+}
+
+.price-currency {
+  font-size: var(--text-xs, 0.8rem);
+  text-transform: uppercase;
+  color: #94a3b8; /* Uhakika wa contrast ratio bora kwa uoni hafifu */
+}
+
+/* 6. prefers-reduced-motion: Kuzima miondoko kwa watumiaji wanaohitaji */
+@media (prefers-reduced-motion: reduce) {
+  .cookie-consent-banner,
+  .age-verification-overlay,
+  .ai-chatbot-container,
+  .accessibility-widget-btn {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* 7. Dark Mode & High-Contrast Adjustments */
+@media (prefers-color-scheme: dark) {
+  .cookie-consent-banner {
+    background: #01160d;
+    border-top-color: #d4af37;
+  }
+}
+
+/* 8. RESPONSIVE MEDIA QUERIES (Simu na skrini ndogo) */
+@media (max-width: 768px) {
+  .cookie-consent-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--spacing-sm, 12px);
+    gap: var(--spacing-sm, 12px);
+  }
+
+  .cookie-buttons {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .age-verification-card {
+    padding: var(--spacing-md, 16px);
+  }
+
+  .ai-chatbot-container {
+    width: 90%;
+    right: 5%;
+    left: 5%;
+    bottom: 80px;
+    max-height: 70vh; /* Urefu salama kwenye simu */
+  }
+
+  .accessibility-widget-btn {
+    padding: 8px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-chatbot-container {
+    width: 94%;
+    right: 3%;
+    left: 3%;
+    max-height: 65vh;
+  }
+  
+  .age-verification-card {
+    padding: 12px;
+  }
+}

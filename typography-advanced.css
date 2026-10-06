@@ -1,0 +1,107 @@
+/* ==========================================================================
+   File Name: typography-core.css
+   Version: 3.1.0
+   Date: 2026-10-06
+   Description: Complete Extended Typography Framework - Core Styles
+   ========================================================================== */
+
+/* 1. Base & Font Weights */
+.font-extrabold { font-weight: 800; }
+.font-black { font-weight: 900; }
+.font-thin { font-weight: 100; }
+.font-extralight { font-weight: 200; }
+.font-light { font-weight: 300; }
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+.font-sans { font-family: system-ui, -apple-system, sans-serif; }
+.font-serif { font-family: Georgia, Cambria, serif; }
+.font-mono { font-family: monospace; }
+.font-display { font-family: 'Playfair Display', serif; }
+
+/* 2. Headings na Fluid Clamp() kwa h1 mpaka h6 */
+h1, .text-h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.2; }
+h2, .text-h2 { font-size: clamp(1.75rem, 4vw, 2.75rem); font-weight: 700; line-height: 1.25; }
+h3, .text-h3 { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 700; line-height: 1.3; }
+h4, .text-h4 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); font-weight: 600; line-height: 1.4; }
+h5, .text-h5 { font-size: clamp(1.125rem, 2vw, 1.375rem); font-weight: 600; line-height: 1.45; }
+h6, .text-h6 { font-size: clamp(1rem, 1.5vw, 1.125rem); font-weight: 600; line-height: 1.5; }
+
+/* 3. Text Decoration & Underlines */
+.underline { text-decoration: underline; }
+.line-through { text-decoration: line-through; }
+.no-underline { text-decoration: none; }
+
+.decoration-dashed { text-decoration-style: dashed; }
+.decoration-dotted { text-decoration-style: dotted; }
+.decoration-double { text-decoration-style: double; }
+.decoration-wavy { text-decoration-style: wavy; }
+
+.decoration-gold { text-decoration-color: var(--color-gold, #d4af37); }
+.decoration-dark { text-decoration-color: var(--color-dark, #111827); }
+.decoration-muted { text-decoration-color: var(--text-muted, #6b7280); }
+
+.decoration-1 { text-decoration-thickness: 1px; }
+.decoration-2 { text-decoration-thickness: 2px; }
+.decoration-4 { text-decoration-thickness: 4px; }
+.decoration-8 { text-decoration-thickness: 8px; }
+
+.underline-offset-1 { text-underline-offset: 1px; }
+.underline-offset-2 { text-underline-offset: 2px; }
+.underline-offset-4 { text-underline-offset: 4px; }
+.underline-offset-8 { text-underline-offset: 8px; }
+
+/* 4. Line Heights & Letter Spacing */
+.leading-none { line-height: 1; }
+.leading-tight { line-height: 1.25; }
+.leading-snug { line-height: 1.375; }
+.leading-normal { line-height: 1.5; }
+.leading-relaxed { line-height: 1.625; }
+.leading-loose { line-height: 2; }
+
+.tracking-tighter { letter-spacing: -0.05em; }
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-normal { letter-spacing: 0em; }
+.tracking-wide { letter-spacing: 0.025em; }
+.tracking-wider { letter-spacing: 0.05em; }
+.tracking-widest { letter-spacing: 0.1em; }
+
+/* 5. Text Overflow, White Space & Breaks */
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.text-ellipsis { text-overflow: ellipsis; }
+.text-clip { text-overflow: clip; }
+
+.whitespace-normal { white-space: normal; }
+.whitespace-nowrap { white-space: nowrap; }
+.whitespace-pre { white-space: pre; }
+.whitespace-pre-line { white-space: pre-line; }
+.whitespace-pre-wrap { white-space: pre-wrap; }
+
+.break-normal { overflow-wrap: normal; word-break: normal; }
+.break-words { overflow-wrap: break-word; }
+.break-all { word-break: break-all; }
+.overflow-wrap-normal { overflow-wrap: normal; }
+.overflow-wrap-break { overflow-wrap: break-word; }
+.overflow-wrap-anywhere { overflow-wrap: anywhere; }
+
+.hyphens-none { hyphens: none; }
+.hyphens-manual { hyphens: manual; }
+.hyphens-auto { hyphens: auto; }
+
+/* 6. Alignments, Transforms & Styles */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-justify { text-align: justify; }
+.text-start { text-align: start; }
+.text-end { text-align: end; }
+
+.uppercase { text-transform: uppercase; }
+.lowercase { text-transform: lowercase; }
+.capitalize { text-transform: capitalize; }
+.normal-case { text-transform: none; }
+
+.italic { font-style: italic; }
+.not-italic { font-style: normal; }

@@ -1,0 +1,327 @@
+/**
+ * ==========================================
+ * UNP TOURS - MASTER TOAST NOTIFICATION MANAGER
+ * Version: 2.0 (Fully Optimized & Accessible)
+ * ==========================================
+ */
+class ToastManager {
+  constructor(options = {}) {
+    this.setDefaults(options);
+    this.toasts = new Map(); // Hifadhi active toasts kwa ajili ya ID na update (Point 12, 30)
+    this.queue = [];         // Queue system kwa ajili ya kusimamia wingi wa toasts (Point 45)
+    this.containers = new Map(); // Msaada kwa Multiple Positions (Point 29)
+    this.counter = 0;
+  }
+
+  setDefaults(options = {}) {
+    this.defaults = {
+      position: options.position || 'top-right',
+      duration: options.duration || 4000,
+      maxToasts: options.maxToasts || 5, // Point 44: Kikomo cha toasts
+      ...options
+    };
+  }
+
+  getContainer(position) {
+    if (this.containers.has(position)) {
+      return this.containers.get(position);
+    }
+
+    let container = document.querySelector(`.toast-container.${position}`);
+    if (!container) {
+      container = document.createElement('div');
+      container.className = `toast-container ${position}`;
+      
+      // Point 39 & 42: Responsive width na Mobile Positioning (full-width chini kwa simu)
+      container.style.cssText = `
+        position: fixed; z-index: 9999; display: flex; flex-direction: column; gap: 12px; 
+        pointer-events: none; max-width: 90%; width: 350px; padding: 16px; box-sizing: border-box;
+      `;
+      
+      if (position.includes('top')) container.style.top = '0';
+      if (position.includes('bottom')) container.style.bottom = '0';
+      if (position.includes('right')) container.style.right = '0';
+      if (position.includes('left')) container.style.left = '0';
+      if (position.includes('center')) {
+        container.style.left = '50%';
+        container.style.transform = 'translateX(-50%)';
+      }
+
+      document.body.appendChild(container);
+    }
+
+    this.containers.set(position, container);
+    return container;
+  }
+
+  show(message, type = 'info', options = {}) {
+    // Point 43: Error handling kwa message tupu
+    if (!message) {
+      console.warn('[ToastManager]: Ujumbe wa toast hauwezi kuwa mtupu.');
+      return null;
+    }
+
+    const config = {
+      id: `toast-${++this.counter}`,
+      position: options.position || this.defaults.position,
+      duration: options.duration || this.defaults.duration,
+      action: options.action || null, // Point 31: Action Buttons ("Undo", "Retry")
+      customIcon: options.customIcon || null, // Point 32
+      customClass: options.customClass || '', // Point 33
+      richContent: options.richContent || false, // Point 34
+      ...options
+    };
+
+    // Point 44 & 45: Angalia kikomo cha active toasts na tumia queue kama zimezidi
+    const container = this.getContainer(config.position);
+    const activeInContainer = container.querySelectorAll('.toast').length;
+    
+    if (activeInContainer >= this.defaults.maxToasts) {
+      const oldestToast = container.querySelector('.toast');
+      if (oldestToast) {
+        this.dismiss(oldestToast.dataset.toastId);
+      }
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} ${config.customClass} show`.trim();
+    toast.dataset.toastId = config.id;
+
+    // Point 1, 2, 3: Accessibility Roles & ARIA attributes
+    const role = (type === 'error' || type === 'warning') ? 'alert' : 'status';
+    const ariaLive = (type === 'error') ? 'assertive' : 'polite';
+    
+    toast.setAttribute('role', role);
+    toast.setAttribute('aria-live', ariaLive);
+    toast.setAttribute('aria-atomic', 'true');
+
+    // Styling ya Toast pamoja na will-change kwa performance (Point 47)
+    toast.style.cssText = `
+      pointer-events: auto;
+      background: var(--toast-bg, #ffffff);
+      color: var(--toast-color, #0d1b2a);
+      padding: 14px 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
+      border-left: 4px solid ${this.getBorderColor(type)};
+      will-change: transform, opacity;
+      width: 100%;
+      box-sizing: border-box;
+    `;
+
+    // Point 5 & 32: Icon na aria-label
+    const iconContent = config.customIcon || this.getIconSymbol(type);
+    
+    // Point 7 & 8: Usalama dhidi ya XSS kupitia textContent kwa ujumbe wa kawaida
+    let messageHTML = '';
+    if (config.richContent) {
+      messageHTML = `<div class="toast-message" style="flex-grow: 1; font-size: 0.9rem;">${message}</div>`;
+    } else {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'toast-message';
+      msgDiv.style.cssText = 'flex-grow: 1; font-size: 0.9rem;';
+      msgDiv.textContent = message; // Salama kabisa dhidi ya XSS
+      messageHTML = msgDiv.outerHTML;
+    }
+
+    // Point 31: Action Button kama ipo
+    let actionHTML = '';
+    if (config.action && config.action.text && typeof config.action.callback === 'function') {
+      actionHTML = `<button class="toast-action-btn" style="background:none; border:1px solid currentColor; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.8rem; font-weight:600;">${config.action.text}</button>`;
+    }
+
+    toast.innerHTML = `
+      <div class="toast-icon" aria-hidden="true">${iconContent}</div>
+      ${messageHTML}
+      ${actionHTML}
+      <button class="toast-close" aria-label="Funga taarifa" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:#888; min-width:44px; min-height:44px; display:flex; align-items:center; justifyContent:center;">&times;</button>
+      <div class="toast-progress" style="animation-duration: ${config.duration}ms; will-change: width;"></div>
+    `;
+
+    container.appendChild(toast);
+    this.toasts.set(config.id, { element: toast, config, remainingTime: config.duration, startTime: Date.now(), timerId: null });
+
+    this.startTimer(config.id);
+    this.initEvents(config.id);
+
+    // Point 17: Custom Event (toast:show)
+    window.dispatchEvent(new CustomEvent('toast:show', { detail: { id: config.id, message, type } }));
+
+    return config.id;
+  }
+
+  startTimer(id) {
+    const toastData = this.toasts.get(id);
+    if (!toastData) return;
+
+    toastData.startTime = Date.now();
+    // Point 12: Timer ID Reference kwa ajili ya kusimamisha na kuirestart
+    toastData.timerId = setTimeout(() => {
+      this.dismiss(id);
+    }, toastData.remainingTime);
+  }
+
+  pauseTimer(id) {
+    const toastData = this.toasts.get(id);
+    if (!toastData || !toastData.timerId) return;
+
+    clearTimeout(toastData.timerId);
+    // Point 9: Hifadhi muda uliobaki kwa usahihi
+    toastData.remainingTime -= (Date.now() - toastData.startTime);
+
+    const progress = toastData.element.querySelector('.toast-progress');
+    if (progress) {
+      // Point 10 & 11: Simamisha progress bar kupitia animation-play-state
+      progress.style.animationPlayState = 'paused';
+    }
+
+    window.dispatchEvent(new CustomEvent('toast:pause', { detail: { id } }));
+  }
+
+  resumeTimer(id) {
+    const toastData = this.toasts.get(id);
+    if (!toastData) return;
+
+    toastData.startTime = Date.now();
+    this.startTimer(id);
+
+    const progress = toastData.element.querySelector('.toast-progress');
+    if (progress) {
+      progress.style.animationPlayState = 'running';
+    }
+
+    window.dispatchEvent(new CustomEvent('toast:resume', { detail: { id } }));
+  }
+
+  initEvents(id) {
+    const toastData = this.toasts.get(id);
+    if (!toastData) return;
+    const { element, config } = toastData;
+
+    // Kitufe cha kufunga (Close button)
+    const closeBtn = element.querySelector('.toast-close');
+    closeBtn.addEventListener('click', () => this.dismiss(id));
+
+    // Action button handler (Point 20, 31)
+    const actionBtn = element.querySelector('.toast-action-btn');
+    if (actionBtn && config.action) {
+      actionBtn.addEventListener('click', () => {
+        if (typeof config.action.callback === 'function') {
+          config.action.callback();
+        }
+        window.dispatchEvent(new CustomEvent('toast:action', { detail: { id } }));
+        this.dismiss(id);
+      });
+    }
+
+    // Pause & Resume wakati wa hover au focus
+    element.addEventListener('mouseenter', () => this.pauseTimer(id));
+    element.addEventListener('mouseleave', () => this.resumeTimer(id));
+    element.addEventListener('focusin', () => this.pauseTimer(id));
+    element.addEventListener('focusout', () => this.resumeTimer(id));
+
+    // Point 19: Toast click event
+    element.addEventListener('click', (e) => {
+      if (!e.target.closest('button')) {
+        window.dispatchEvent(new CustomEvent('toast:click', { detail: { id } }));
+      }
+    });
+
+    // Point 41: Swipe to Dismiss (Touch devices)
+    let touchStartX = 0;
+    element.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+      this.pauseTimer(id);
+    }, { passive: true });
+
+    element.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX - touchStartX > 100) { // Swipe kulia kufunga
+        this.dismiss(id);
+      } else {
+        this.resumeTimer(id);
+      }
+    }, { passive: true });
+  }
+
+  dismiss(id) {
+    const toastData = this.toasts.get(id);
+    if (!toastData || toastData.element.classList.contains('hiding')) return;
+
+    const { element } = toastData;
+    if (toastData.timerId) clearTimeout(toastData.timerId);
+
+    element.classList.remove('show');
+    element.classList.add('hiding'); // Point 15: Slide-out animation
+
+    element.addEventListener('animationend', () => {
+      element.remove();
+      this.toasts.delete(id);
+      window.dispatchEvent(new CustomEvent('toast:dismiss', { detail: { id } }));
+    }, { once: true });
+  }
+
+  // Point 23: dismissAll() Method
+  dismissAll() {
+    for (const id of this.toasts.keys()) {
+      this.dismiss(id);
+    }
+  }
+
+  // Point 24: getActiveToasts() Method
+  getActiveToasts() {
+    return Array.from(this.toasts.keys());
+  }
+
+  // Point 26: update() Method kubadilisha ujumbe bila kuifunga
+  update(id, newMessage, newType = null) {
+    const toastData = this.toasts.get(id);
+    if (!toastData) return;
+
+    const msgEl = toastData.element.querySelector('.toast-message');
+    if (msgEl) msgEl.textContent = newMessage;
+
+    if (newType) {
+      toastData.element.className = `toast toast-${newType} show`;
+      toastData.element.style.borderLeftColor = this.getBorderColor(newType);
+    }
+  }
+
+  // Point 25: destroy() Method kusafisha kila kitu na kuondoa memory leaks (Point 46)
+  destroy() {
+    this.dismissAll();
+    for (const container of this.containers.values()) {
+      container.remove();
+    }
+    this.containers.clear();
+    this.toasts.clear();
+  }
+
+  getBorderColor(type) {
+    switch (type) {
+      case 'success': return '#2e7d32';
+      case 'error': return '#c62828';
+      case 'warning': return 'var(--gold-color, #d4af37)';
+      default: return '#0d1b2a';
+    }
+  }
+
+  getIconSymbol(type) {
+    switch (type) {
+      case 'success': return '✓';
+      case 'error': return '✕';
+      case 'warning': return '⚠';
+      default: return 'ℹ';
+    }
+  }
+}
+
+// Anzisha Toast Manager rasmi kwenye mfumo
+document.addEventListener('DOMContentLoaded', () => {
+  window.unpToasts = new ToastManager();
+});

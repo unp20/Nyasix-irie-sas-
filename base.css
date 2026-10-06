@@ -1,0 +1,166 @@
+/* ==========================================
+   UNP TOURS - BASE.CSS (Kamili & Ya Kina)
+   ========================================== */
+
+/* 1. HTML */
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+/* 2. VARIABLES (:root) */
+:root {
+  --primary-color: #0d1b2a;
+  --gold-color: #d4af37;
+  --text-dark: #333333;
+  --bg-light: #f8f9fa;
+  --white: #ffffff;
+  --text-muted: #666666;
+  --text-light: #999999;
+  --border-color: #dddddd;
+  --success-color: #28a745;
+  --error-color: #dc3545;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 50px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+  --transition: all 0.3s ease;
+}
+
+/* 3. RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 4. BODY */
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--text-dark);
+  background-color: var(--white);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 5. HEADINGS */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  line-height: 1.3;
+  color: var(--primary-color);
+}
+
+/* 6. LINKS */
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition);
+}
+
+/* 7. LISTS */
+ul {
+  list-style: none;
+}
+
+/* 8. CONTAINER */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 9. IMAGES / MEDIA */
+img, picture, video, canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* 10. SELECTION */
+::selection {
+  background-color: var(--gold-color);
+  color: var(--primary-color);
+}
+
+/* 11. FOCUS-VISIBLE */
+:focus-visible {
+  outline: 2px solid var(--gold-color);
+  outline-offset: 3px;
+}
+
+/* 12. SCROLLBAR */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-light);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-color);
+}
+
+/* 13. SKIP-LINK */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--gold-color);
+  color: var(--primary-color);
+  padding: var(--space-sm) var(--space-md);
+  z-index: 100000;
+  font-weight: 600;
+  transition: top 0.3s ease;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* 14. SR-ONLY */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 15. BUTTONS / INPUTS / SELECT / TEXTAREA */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+button {
+  cursor: pointer;
+  }
+    

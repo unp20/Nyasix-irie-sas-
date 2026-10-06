@@ -1,0 +1,46 @@
+/**
+ * ==========================================
+ * UNP TOURS - MODAL MANAGER UNIT TESTS (Points 41-46)
+ * ==========================================
+ */
+function runModalManagerTests() {
+  console.group('🧪 UNP Tours - ModalManager Unit Tests');
+
+  // Weka HTML ya muda ya kupimia
+  const testContainer = document.createElement('div');
+  testContainer.innerHTML = `
+    <div id="test-modal" class="modal-overlay">
+      <div class="modal-box">
+        <h2 id="modal-title">Kichwa cha Jaribio</h2>
+        <button id="modal-btn-1">Kitufe 1</button>
+        <button id="modal-btn-2" data-modal-close>Funga</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(testContainer);
+
+  const manager = new ModalManager();
+  const modalEl = document.getElementById('test-modal');
+
+  // Test 1: isOpen() & openModal()
+  manager.openModal(modalEl);
+  const t1 = manager.isOpen() === true && manager.getActiveModal() === modalEl;
+  console.log(t1 ? '✅ Pass: openModal() imefungua modal kwa ufasaha' : '❌ Fail: openModal haijafanya kazi vizuri');
+
+  // Test 2: Stack Management
+  const t2 = manager.getModalStack().length === 1;
+  console.log(t2 ? '✅ Pass: Modal stack ina urefu sahihi (1)' : '❌ Fail: Stack length si sahihi');
+
+  // Test 3: closeModal()
+  manager.closeModal(modalEl);
+  setTimeout(() => {
+    const t3 = manager.isOpen() === false;
+    console.log(t3 ? '✅ Pass: closeModal() imefunga modal kikamilifu' : '❌ Fail: closeModal haijafunga modal');
+
+    testContainer.remove();
+    console.groupEnd();
+  }, 350);
+}
+
+// Unaweza ku-uncomment mstari huu kuendesha vipimo kwenye console:
+// window.addEventListener('DOMContentLoaded', runModalManagerTests);

@@ -1,0 +1,232 @@
+/**
+ * @file components-toast.css
+ * @description Advanced Update & Connectivity Banners Stylesheet for UNP Tours (v2.1.0)
+ * @date 2026-10-06
+ * Features: Design tokens, transform bug fixes, responsive positioning, a11y focus states, 
+ * reduced motion support, RTL, and print hiding.
+ */
+
+/* ==========================================
+   1. DESIGN TOKENS (CSS VARIABLES)
+   ================================---------- */
+:root {
+  --banner-bg: #0d1b2a;
+  --banner-text: #ffffff;
+  --banner-accent: #38bdf8;
+  --banner-secondary: #334155;
+  --banner-online: #166534;
+  --banner-offline: #991b1b;
+  --banner-radius: 8px;
+  --banner-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --banner-z: 10000;
+  
+  --banner-font-size: 0.875rem;
+  --banner-line-height: 1.5;
+  
+  --banner-update-bottom: 20px;
+  --banner-update-right: 20px;
+  --banner-conn-top: 20px;
+}
+
+/* Light Mode / High Contrast Adjustments */
+@media (prefers-color-scheme: light) {
+  :root {
+    --banner-bg: #1e293b;
+    --banner-secondary: #475569;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --banner-shadow: 0 0 0 2px #ffffff, 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ==========================================
+   2. BASE BANNER STYLES & LAYOUT
+   ================================---------- */
+.update-banner, 
+.connectivity-banner {
+  position: fixed;
+  z-index: var(--banner-z);
+  background-color: var(--banner-bg);
+  color: var(--banner-text);
+  font-size: var(--banner-font-size);
+  line-height: var(--banner-line-height);
+  border-radius: var(--banner-radius);
+  box-shadow: var(--banner-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  will-change: transform, opacity;
+  box-sizing: border-box;
+}
+
+/* Update Banner Positioning & Animation */
+.update-banner {
+  bottom: var(--banner-update-bottom);
+  right: var(--banner-update-right);
+  max-width: 320px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: slideUpUpdate 0.3s ease-out forwards;
+}
+
+/* Connectivity Banner Positioning & Animation (Fixed Transform Collision) */
+.connectivity-banner {
+  top: var(--banner-conn-top);
+  left: 50%;
+  transform: translate(-50%, 0); /* Imerekebishwa ili isigongane na animation */
+  max-width: 400px;
+  width: 90%;
+  padding: 12px 16px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  animation: slideDownConn 0.3s ease-out forwards;
+}
+
+.connectivity-banner.offline {
+  background-color: var(--banner-offline);
+}
+
+.connectivity-banner.online {
+  background-color: var(--banner-online);
+}
+
+/* ==========================================
+   3. BUTTONS & INTERACTION STATES (A11Y)
+   ================================---------- */
+.update-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.update-banner button,
+.connectivity-banner button {
+  min-height: 44px; /* Touch target ya 44px kwa simu */
+  padding: 8px 16px;
+  border: none;
+  border-radius: calc(var(--banner-radius) - 2px);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--banner-font-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+}
+
+#pwa-reload-btn {
+  background-color: var(--banner-accent);
+  color: #0f172a;
+}
+
+#pwa-reload-btn:hover {
+  background-color: #0ea5e9;
+}
+
+#pwa-dismiss-btn {
+  background-color: var(--banner-secondary);
+  color: var(--banner-text);
+}
+
+#pwa-dismiss-btn:hover {
+  background-color: #475569;
+}
+
+/* Focus, Active, and Disabled States */
+button:focus-visible {
+  outline: 2px solid var(--banner-accent);
+  outline-offset: 2px;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   4. ANIMATIONS & PREFERENCES
+   ================================---------- */
+@keyframes slideUpUpdate {
+  from {
+    transform: translate3d(0, 20px, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDownConn {
+  from {
+    transform: translate(-50%, -20px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .update-banner,
+  .connectivity-banner {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ==========================================
+   5. RESPONSIVE MEDIA QUERIES
+   ================================---------- */
+@media (max-width: 480px) {
+  .update-banner {
+    left: 5%;
+    right: 5%;
+    bottom: 80px; /* Huepuka kugongana na Mobile FABs */
+    max-width: none;
+  }
+  .connectivity-banner {
+    top: 60px; /* Huepuka kugongana na Mobile Headers */
+    width: 95%;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .update-banner {
+    right: 20px;
+    bottom: 20px;
+    max-width: 350px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .update-banner {
+    max-width: 400px;
+  }
+}
+
+/* ==========================================
+   6. RTL & PRINT SUPPORT
+   ================================---------- */
+[dir="rtl"] .update-banner {
+  right: auto;
+  left: var(--banner-update-right);
+}
+
+@media print {
+  .update-banner,
+  .connectivity-banner {
+    display: none !important;
+  }
+}

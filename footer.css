@@ -1,0 +1,459 @@
+/**
+ * ============================================================================
+ * UNP TOURS - MASTER NEWSLETTER MANAGER (V3 Enterprise Ultimate)
+ * Includes Dynamic GDPR, Offline Detection, Caching, Animations, & Analytics
+ * ============================================================================
+ */
+class NewsletterManager {
+  /**
+   * @constructor
+   * @param {Object} options Configuration options for the newsletter form
+   */
+  constructor(options = {}) {
+    this.options = {
+      apiEndpoint: options.apiEndpoint || 'https://api.unp.tours/v1/newsletter',
+      privacyPolicyUrl: options.privacyPolicyUrl || '/privacy-policy.html',
+      lang: options.lang || (navigator.language && navigator.language.startsWith('sw') ? 'sw' : 'en'),
+      csrfToken: options.csrfToken || '',
+      storageKey: 'unp_newsletter_subscribers_v3',
+      cacheKey: 'unp_newsletter_cache_v3',
+      rateLimitSec: 5,
+      maxRetries: 3,
+      timeoutMs: 8000,
+      ...options
+    };
+
+    this.form = document.querySelector('.newsletter-form');
+    if (!this.form) return;
+
+    // Fallback renderTime kama haikuwekwa kwenye DOMContentLoaded
+    if (!this.form.dataset.renderTime) {
+      this.form.dataset.renderTime = Date.now();
+    }
+
+    this.isSubmitting = false;
+    this.lastSubmissionTime = 0;
+    this.boundHandlers = {};
+    this.autoClearTimer = null;
+
+    this.translations = {
+      sw: {
+        invalidEmail: 'Tafadhali ingiza barua pepe iliyo sahihi (mfano: jina@domain.com).',
+        emptyInput: 'Sehemu hii haipaswi kuwa tupu.',
+        duplicateEmail: 'Barua pepe hii ipo tayari kwenye orodha yetu.',
+        networkError: 'Hakuna mtandao au seva haipatikani, tafadhali jaribu tena.',
+        offlineError: 'Huna mtandao kwa sasa. Tafadhali angalia muunganisho wako.',
+        timeoutError: 'Muda umeisha. Tafadhali jaribu tena.',
+        successMsg: 'Asante! Umejumuishwa kwenye orodha ya UNP Tours.',
+        sending: 'Inatuma...',
+        submitBtn: 'Jiunge na newsletter',
+        emailPlaceholder: 'Weka barua pepe yako...',
+        gdprConsentText: 'Nakubali kupokea barua pepe na nakubali',
+        privacyPolicyLinkText: 'Sera yetu ya Faragha'
+      },
+      en: {
+        invalidEmail: 'Please enter a valid email address (e.g., name@domain.com).',
+        emptyInput: 'This field cannot be empty.',
+        duplicateEmail: 'This email is already subscribed.',
+        networkError: 'Network error or server unavailable. Please try again.',
+        offlineError: 'You are currently offline. Please check your connection.',
+        timeoutError: 'Request timed out. Please try again.',
+        successMsg: 'Thank you! You have successfully subscribed to UNP Tours.',
+        sending: 'Sending...',
+        submitBtn: 'Join newsletter',
+        emailPlaceholder: 'Enter your email address...',
+        gdprConsentText: 'I agree to receive emails and accept our',
+        privacyPolicyLinkText: 'Privacy Policy'
+      }
+    };
+
+    this.init();
+  }
+
+  /**
+   * Initialize manager, markup injection, and event listeners.
+   */
+  init() {
+    this.injectDynamicElements();
+    this.setupDOMAttributes();
+    this.initEvents();
+  }
+
+  /**
+   * Inject missing Honeypot fields and GDPR Checkbox dynamically if not present.
+   */
+  injectDynamicElements() {
+    const t = this.translations[this.options.lang];
+
+    // 1. Honeypot Field for Bots
+    if (!this.form.querySelector('.newsletter-honeypot')) {
+      const hp = document.createElement('input');
+      hp.type = 'text';
+      hp.name = 'website_hp';
+      hp.className = 'newsletter-honeypot';
+      hp.tabIndex = -1;
+      hp.autocomplete = 'off';
+      hp.style.cssText = 'display:none !important; position:absolute; left:-9999px;';
+      this.form.appendChild(hp);
+    }
+
+    // 2. Dynamic GDPR Checkbox & Privacy Policy Link
+    if (!this.form.querySelector('input[name="gdpr_consent"]')) {
+      const gdprDiv = document.createElement('div');
+      gdprDiv.className = 'newsletter-gdpr-container';
+      gdprDiv.innerHTML = `
+        <input type="checkbox" id="gdpr_consent" name="gdpr_consent" required>
+        <label for="gdpr_consent">
+          ${t.gdprConsentText} <a href="${this.options.privacyPolicyUrl}" target="_blank" rel="noopener">${t.privacyPolicyLinkText}</a>.
+        </label>
+      `;
+      // Weka kabla ya button au mwishoni mwa form
+      const submitBtn = this.form.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        this.form.insertBefore(gdprDiv, submitBtn);
+      } else {
+        this.form.appendChild(gdprDiv);
+      }
+    }
+
+    // 3. Message Container
+    if (!this.form.querySelector('.newsletter-msg')) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'newsletter-msg';
+      msgDiv.id = 'newsletter-error-msg';
+      this.form.appendChild(msgDiv);
+    }
+  }
+
+  /**
+   * Setup ARIA roles and input attributes.
+   */
+  setupDOMAttributes() {
+    const t = this.translations[this.options.lang];
+    this.form.setAttribute('aria-busy', 'false');
+
+    const input = this.form.querySelector('input[type="email"]');
+    if (input) {
+      input.setAttribute('aria-label', t.emailPlaceholder);
+      input.setAttribute('aria-invalid', 'false');
+      input.setAttribute('aria-describedby', 'newsletter-error-msg');
+      input.setAttribute('autocomplete', 'email');
+      input.setAttribute('inputmode', 'email');
+      if (!input.placeholder) input.placeholder = t.emailPlaceholder;
+    }
+
+    const button = this.form.querySelector('button[type="submit"]');
+    if (button) {
+      button.setAttribute('aria-label', t.submitBtn);
+    }
+
+    const msgContainer = this.form.querySelector('.newsletter-msg');
+    if (msgContainer) {
+      msgContainer.setAttribute('role', 'status');
+      msgContainer.setAttribute('aria-live', 'polite');
+      msgContainer.setAttribute('aria-atomic', 'true');
+    }
+  }
+
+  /**
+   * Bind event listeners for submit, blur, paste, and debounced typing.
+   */
+  initEvents() {
+    this.boundHandlers.submit = (e) => this.handleSubmit(e);
+    this.form.addEventListener('submit', this.boundHandlers.submit);
+
+    const input = this.form.querySelector('input[type="email"]');
+    if (input) {
+      // Live Validation on Input (Debounced)
+      this.boundHandlers.input = this.debounce((e) => {
+        this.validateEmailLive(e.target.value);
+      }, 300);
+      input.addEventListener('input', this.boundHandlers.input);
+
+      // Paste Handling (Sanitize / Trim whitespace)
+      this.boundHandlers.paste = (e) => {
+        setTimeout(() => {
+          input.value = input.value.trim().replace(/\s+/g, '');
+          this.validateEmailLive(input.value);
+        }, 0);
+      };
+      input.addEventListener('paste', this.boundHandlers.paste);
+
+      // Blur Handling
+      this.boundHandlers.blur = (e) => {
+        const val = e.target.value.trim();
+        if (val && !this.isValidEmailFormat(val)) {
+          this.showError(this.translations[this.options.lang].invalidEmail);
+          input.setAttribute('aria-invalid', 'true');
+        }
+      };
+      input.addEventListener('blur', this.boundHandlers.blur);
+    }
+  }
+
+  /**
+   * Handle form submission process.
+   * @param {Event} e 
+   */
+  async handleSubmit(e) {
+    e.preventDefault();
+    const t = this.translations[this.options.lang];
+    const input = this.form.querySelector('input[type="email"]');
+    const hp = this.form.querySelector('.newsletter-honeypot');
+    const gdpr = this.form.querySelector('input[name="gdpr_consent"]');
+    const submitBtn = this.form.querySelector('button[type="submit"]');
+
+    if (!input) return;
+
+    // 1. Offline Check
+    if (!navigator.onLine) {
+      this.showError(t.offlineError);
+      return;
+    }
+
+    // 2. Honeypot & Time-Based Bot Check
+    if (hp && hp.value.trim() !== '') return;
+    const now = Date.now();
+    if (this.form.dataset.renderTime && now - parseInt(this.form.dataset.renderTime) < 1000) {
+      return; // Submitted too fast
+    }
+
+    // 3. Rate Limiting (5s)
+    if (now - this.lastSubmissionTime < this.options.rateLimitSec * 1000) {
+      this.showError(this.options.lang === 'sw' ? 'Tafadhali subiri sekunde chache kabla ya kutuma tena.' : 'Please wait a few seconds before submitting again.');
+      return;
+    }
+
+    if (this.isSubmitting) return;
+
+    const email = input.value.trim().toLowerCase();
+
+    // 4. Validation Checks
+    if (!email) {
+      this.showError(t.emptyInput);
+      this.triggerErrorFeedback(input);
+      return;
+    }
+
+    if (!this.isValidEmailFormat(email)) {
+      this.showError(t.invalidEmail);
+      this.triggerErrorFeedback(input);
+      return;
+    }
+
+    if (gdpr && !gdpr.checked) {
+      this.showError(this.options.lang === 'sw' ? 'Tafadhali kubali sera yetu ya faragha.' : 'Please agree to our privacy policy.');
+      return;
+    }
+
+    if (this.isDuplicateEmail(email)) {
+      this.showError(t.duplicateEmail);
+      this.triggerErrorFeedback(input);
+      window.dispatchEvent(new CustomEvent('newsletter:duplicate', { detail: { email } }));
+      return;
+    }
+
+    // Start Submitting State
+    this.isSubmitting = true;
+    this.form.setAttribute('aria-busy', 'true');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = t.sending;
+    }
+
+    window.dispatchEvent(new CustomEvent('newsletter:submit', { detail: { email } }));
+
+    try {
+      await this.sendToAPIWithRetry(email);
+
+      // Success State
+      this.saveToLocalStorage(email);
+      this.cacheApiResponse(email);
+      this.showSuccess(t.successMsg);
+      this.triggerSuccessFeedback(input);
+      
+      input.value = '';
+      input.setAttribute('aria-invalid', 'false');
+      this.lastSubmissionTime = Date.now();
+
+      window.dispatchEvent(new CustomEvent('newsletter:success', { detail: { email } }));
+
+      // Analytics Hook Integration
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'newsletter_subscribe', { event_category: 'Engagement', event_label: email });
+      }
+
+      this.clearMessageAfterDelay(5000);
+
+    } catch (error) {
+      let errMsg = t.networkError;
+      if (error.name === 'AbortError') errMsg = t.timeoutError;
+
+      this.showError(errMsg);
+      this.triggerErrorFeedback(input);
+
+      window.dispatchEvent(new CustomEvent('newsletter:error', { detail: { error: error.message, email } }));
+    } finally {
+      this.isSubmitting = false;
+      this.form.setAttribute('aria-busy', 'false');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = t.submitBtn;
+      }
+    }
+  }
+
+  /**
+   * Validate email format using RFC-compliant regex.
+   */
+  isValidEmailFormat(email) {
+    return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+  }
+
+  validateEmailLive(email) {
+    const input = this.form.querySelector('input[type="email"]');
+    if (!input) return;
+    if (email === '' || this.isValidEmailFormat(email)) {
+      input.setAttribute('aria-invalid', 'false');
+    }
+  }
+
+  isDuplicateEmail(email) {
+    try {
+      const subs = JSON.parse(localStorage.getItem(this.options.storageKey) || '[]');
+      return subs.includes(email);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  saveToLocalStorage(email) {
+    try {
+      const subs = JSON.parse(localStorage.getItem(this.options.storageKey) || '[]');
+      if (!subs.includes(email)) {
+        subs.push(email);
+        localStorage.setItem(this.options.storageKey, JSON.stringify(subs));
+      }
+    } catch (e) {}
+  }
+
+  cacheApiResponse(email) {
+    try {
+      const cache = JSON.parse(localStorage.getItem(this.options.cacheKey) || '{}');
+      cache[email] = { timestamp: Date.now(), status: 'success' };
+      localStorage.setItem(this.options.cacheKey, JSON.stringify(cache));
+    } catch (e) {}
+  }
+
+  async sendToAPIWithRetry(email, retryCount = this.options.maxRetries) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.options.timeoutMs);
+
+    try {
+      const response = await fetch(this.options.apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': this.options.csrfToken,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ email, timestamp: Date.now() }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (retryCount > 0 && error.name !== 'AbortError' && navigator.onLine) {
+        await new Promise(res => setTimeout(res, 2000));
+        return this.sendToAPIWithRetry(email, retryCount - 1);
+      }
+      throw error;
+    }
+  }
+
+  showError(msg) {
+    const msgContainer = this.form.querySelector('.newsletter-msg');
+    if (!msgContainer) return;
+    msgContainer.style.color = '#c62828';
+    msgContainer.setAttribute('role', 'alert');
+    msgContainer.innerHTML = `✕ ${this.escapeHTML(msg)}`;
+    msgContainer.classList.add('fade-in');
+    msgContainer.classList.remove('fade-out');
+  }
+
+  showSuccess(msg) {
+    const msgContainer = this.form.querySelector('.newsletter-msg');
+    if (!msgContainer) return;
+    msgContainer.style.color = 'var(--gold-color, #d4af37)';
+    msgContainer.setAttribute('role', 'status');
+    msgContainer.innerHTML = `✓ ${this.escapeHTML(msg)}`;
+    msgContainer.classList.add('fade-in');
+    msgContainer.classList.remove('fade-out');
+  }
+
+  triggerErrorFeedback(input) {
+    input.setAttribute('aria-invalid', 'true');
+    input.classList.add('unp-shake');
+    input.focus();
+    setTimeout(() => input.classList.remove('unp-shake'), 400);
+  }
+
+  triggerSuccessFeedback(input) {
+    input.classList.add('unp-pulse');
+    setTimeout(() => input.classList.remove('unp-pulse'), 1000);
+  }
+
+  clearMessageAfterDelay(ms) {
+    if (this.autoClearTimer) clearTimeout(this.autoClearTimer);
+    this.autoClearTimer = setTimeout(() => {
+      const msgContainer = this.form.querySelector('.newsletter-msg');
+      if (msgContainer) {
+        msgContainer.classList.add('fade-out');
+        setTimeout(() => {
+          msgContainer.innerHTML = '';
+          msgContainer.classList.remove('fade-in', 'fade-out');
+        }, 300);
+      }
+    }, ms);
+  }
+
+  debounce(func, wait) {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
+  escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  destroy() {
+    if (this.form && this.boundHandlers.submit) {
+      this.form.removeEventListener('submit', this.boundHandlers.submit);
+    }
+    const input = this.form?.querySelector('input[type="email"]');
+    if (input) {
+      if (this.boundHandlers.input) input.removeEventListener('input', this.boundHandlers.input);
+      if (this.boundHandlers.paste) input.removeEventListener('paste', this.boundHandlers.paste);
+      if (this.boundHandlers.blur) input.removeEventListener('blur', this.boundHandlers.blur);
+    }
+    if (this.autoClearTimer) clearTimeout(this.autoClearTimer);
+    this.boundHandlers = {};
+  }
+}
+
+// Anzisha Mfumo rasmi
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('.newsletter-form');
+  if (form) {
+    form.dataset.renderTime = Date.now();
+    window.unpNewsletter = new NewsletterManager();
+  }
+});

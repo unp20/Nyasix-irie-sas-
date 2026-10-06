@@ -1,0 +1,276 @@
+/* ================================================================= */
+/* File: grid.css                                                    */
+/* Version: 2.0                                                      */
+/* Date: 2026-10-06                                                  */
+/* Description: Comprehensive Grid and Flex utility system for       */
+/*              UNP Tours, featuring responsive variants, container  */
+/*              queries, performance rules, and accessibility.       */
+/* ================================================================= */
+
+/* Design Tokens & Custom Properties */
+:root {
+  --grid-columns: 12;
+  --grid-gap: 1rem;
+  --grid-max-width: 1200px;
+  --grid-gutter: 1.5rem;
+  --grid-padding: 1rem;
+  --grid-breakpoint-sm: 640px;
+  --grid-breakpoint-md: 768px;
+  --grid-breakpoint-lg: 1024px;
+  --grid-breakpoint-xl: 1280px;
+  --grid-breakpoint-2xl: 1536px;
+}
+
+/* ================================================================= */
+/* 1. Alignment & Justification Utilities                            */
+/* ================================================================= */
+
+:where(.justify-start) { justify-content: flex-start; }
+:where(.justify-end) { justify-content: flex-end; }
+:where(.justify-center) { justify-content: center; }
+:where(.justify-between) { justify-content: space-between; }
+:where(.justify-around) { justify-content: space-around; }
+:where(.justify-evenly) { justify-content: space-evenly; }
+
+:where(.items-start) { align-items: flex-start; }
+:where(.items-end) { align-items: flex-end; }
+:where(.items-center) { align-items: center; }
+:where(.items-stretch) { align-items: stretch; }
+:where(.items-baseline) { align-items: baseline; }
+
+:where(.self-auto) { align-self: auto; }
+:where(.self-start) { align-self: flex-start; }
+:where(.self-end) { align-self: flex-end; }
+:where(.self-center) { align-self: center; }
+:where(.self-stretch) { align-self: stretch; }
+:where(.self-baseline) { align-self: baseline; }
+
+:where(.content-start) { align-content: flex-start; }
+:where(.content-end) { align-content: flex-end; }
+:where(.content-center) { align-content: center; }
+:where(.content-between) { align-content: space-between; }
+:where(.content-around) { align-content: space-around; }
+:where(.content-evenly) { align-content: space-evenly; }
+:where(.content-stretch) { align-content: stretch; }
+
+:where(.place-items-start) { place-items: start; }
+:where(.place-items-end) { place-items: end; }
+:where(.place-items-center) { place-items: center; }
+:where(.place-items-stretch) { place-items: stretch; }
+
+:where(.place-content-start) { place-content: start; }
+:where(.place-content-end) { place-content: end; }
+:where(.place-content-center) { place-content: center; }
+:where(.place-content-between) { place-content: space-between; }
+:where(.place-content-around) { place-content: space-around; }
+:where(.place-content-evenly) { place-content: space-evenly; }
+:where(.place-content-stretch) { place-content: stretch; }
+
+:where(.place-self-auto) { place-self: auto; }
+:where(.place-self-start) { place-self: start; }
+:where(.place-self-end) { place-self: end; }
+:where(.place-self-center) { place-self: center; }
+:where(.place-self-stretch) { place-self: stretch; }
+
+:where(.justify-items-start) { justify-items: start; }
+:where(.justify-items-end) { justify-items: end; }
+:where(.justify-items-center) { justify-items: center; }
+:where(.justify-items-stretch) { justify-items: stretch; }
+
+:where(.justify-self-auto) { justify-self: auto; }
+:where(.justify-self-start) { justify-self: start; }
+:where(.justify-self-end) { justify-self: end; }
+:where(.justify-self-center) { justify-self: center; }
+:where(.justify-self-stretch) { justify-self: stretch; }
+
+/* ================================================================= */
+/* 2. Grid Flow & Auto Sizing                                        */
+/* ================================================================= */
+
+.grid-flow-row { grid-auto-flow: row; }
+.grid-flow-col { grid-auto-flow: column; }
+.grid-flow-dense { grid-auto-flow: dense; }
+.grid-flow-row-dense { grid-auto-flow: row dense; }
+.grid-flow-col-dense { grid-auto-flow: column dense; }
+
+.auto-cols-auto { grid-auto-columns: auto; }
+.auto-cols-min { grid-auto-columns: min-content; }
+.auto-cols-max { grid-auto-columns: max-content; }
+.auto-cols-fr { grid-auto-columns: minmax(0, 1fr); }
+
+.auto-rows-auto { grid-auto-rows: auto; }
+.auto-rows-min { grid-auto-rows: min-content; }
+.auto-rows-max { grid-auto-rows: max-content; }
+.auto-rows-fr { grid-auto-rows: minmax(0, 1fr); }
+
+/* ================================================================= */
+/* 3. Order Utilities                                                */
+/* ================================================================= */
+
+.order-1 { order: 1; }
+.order-2 { order: 2; }
+.order-3 { order: 3; }
+.order-4 { order: 4; }
+.order-5 { order: 5; }
+.order-6 { order: 6; }
+.order-7 { order: 7; }
+.order-8 { order: 8; }
+.order-9 { order: 9; }
+.order-10 { order: 10; }
+.order-11 { order: 11; }
+.order-12 { order: 12; }
+
+.order-first { order: -9999; }
+.order-last { order: 9999; }
+.order-none { order: 0; }
+
+/* ================================================================= */
+/* 4. Grid Containers & Layouts                                      */
+/* ================================================================= */
+
+.grid-container {
+  display: grid;
+  width: 100%;
+  max-width: var(--grid-max-width);
+  margin-inline: auto;
+  padding-inline: var(--grid-padding);
+  contain: layout style;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--grid-gap);
+  contain: layout style;
+}
+
+.cards-grid > * {
+  content-visibility: auto;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--grid-gap);
+  max-width: var(--grid-max-width);
+  margin-inline: auto;
+}
+
+.two-column-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--grid-gap);
+}
+
+@media (min-width: 768px) {
+  .two-column-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.three-column-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--grid-gap);
+}
+
+@media (min-width: 768px) {
+  .three-column-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.four-column-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--grid-gap);
+}
+
+@media (min-width: 768px) {
+  .four-column-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .four-column-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.grid-auto-fit { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.grid-auto-fill { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+
+.grid-auto-fit-sm { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.grid-auto-fit-md { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.grid-auto-fit-lg { grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); }
+
+.grid-center { place-items: center; }
+.grid-stretch { place-items: stretch; }
+
+/* ================================================================= */
+/* 5. Accessibility & Performance Helpers                            */
+/* ================================================================= */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.not-sr-only {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+[aria-hidden="true"] {
+  display: none !important;
+}
+
+[aria-disabled="true"] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ================================================================= */
+/* 6. Feature Queries & Fallbacks                                    */
+/* ================================================================= */
+
+@supports not (display: grid) {
+  .cards-grid, .footer-grid, .two-column-grid, .three-column-grid, .four-column-grid {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+
+@supports not (gap: 1rem) {
+  .cards-grid > * + *, .footer-grid > * + * {
+    margin-left: 1rem;
+  }
+}
+
+/* ================================================================= */
+/* 7. Container Queries                                              */
+/* ================================================================= */
+
+.container-type-inline {
+  container-type: inline-size;
+}
+
+@container (min-width: 400px) {
+  .container-responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

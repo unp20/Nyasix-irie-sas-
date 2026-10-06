@@ -1,0 +1,66 @@
+<!-- Fomu kamili ya Uthibitishaji -->
+<form novalidate role="search" aria-label="Search form">
+  <div class="search-form">
+    <input 
+      type="search" 
+      class="form-control" 
+      name="q" 
+      aria-label="Search" 
+      placeholder="Tafuta ziara..."
+      autocomplete="search"
+    >
+    <button type="button" class="search-clear-btn" aria-label="Clear search">×</button>
+  </div>
+</form>
+
+<!-- Input ya Email yenye Attributes zote za Usalama na Ufikiaji -->
+<div class="form-group required">
+  <label for="email-input" class="form-label">Barua Pepe</label>
+  <input 
+    type="email" 
+    id="email-input" 
+    name="email" 
+    class="form-control" 
+    autocomplete="email" 
+    inputmode="email" 
+    maxlength="50" 
+    required 
+    aria-required="true" 
+    aria-invalid="false" 
+    aria-describedby="email-error"
+    aria-errormessage="email-error"
+  >
+  <span id="email-error" class="form-error-msg" role="alert" aria-live="assertive" aria-atomic="true">
+    Tafadhali ingiza barua pepe iliyo sahihi.
+  </span>
+</div>
+
+<!-- Password Field yenye Caps Lock Warning na Visibility Toggle -->
+<div class="form-group required">
+  <label for="password-input" class="form-label">Nenosiri</label>
+  <div class="password-wrapper">
+    <input 
+      type="password" 
+      id="password-input" 
+      name="password" 
+      class="form-control" 
+      autocomplete="current-password" 
+      maxlength="50" 
+      required 
+      aria-required="true" 
+      aria-invalid="false" 
+      aria-describedby="password-error"
+      aria-errormessage="password-error"
+    >
+    <button type="button" class="password-toggle-btn" aria-label="Onyesha nenosiri">Onyesha</button>
+  </div>
+  <span id="caps-warning" class="caps-lock-warning" role="alert" aria-live="polite">⚠️ Caps Lock imewashwa!</span>
+  <span id="password-error" class="form-error-msg" role="alert" aria-live="assertive" aria-atomic="true">
+    Nenosiri linahitajika.
+  </span>
+</div>
+
+<!-- Success Message yenye aria-live="polite" -->
+<div class="form-success-msg" role="status" aria-live="polite" aria-atomic="true">
+  Taarifa zimehifadhiwa kwa mafanikio!
+</div>

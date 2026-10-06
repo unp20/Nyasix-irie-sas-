@@ -1,0 +1,275 @@
+/* ==========================================
+   UNP TOURS - COMPONENTS-SLIDER.CSS (Master V4 - 100% Fully Optimized)
+   ========================================== */
+
+/* 1. SLIDES & PERFORMANCE (Point 3, 7) */
+@supports (touch-action: pan-y) {
+  .unp-slider {
+    touch-action: pan-y; /* Point 7: Progressive enhancement kwa touch-action */
+  }
+}
+
+.unp-slider {
+  position: relative;
+  overflow: hidden;
+}
+
+.unp-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  will-change: opacity;
+  transition: opacity 0.6s ease-in-out, visibility 0.6s ease-in-out;
+}
+
+.unp-slide.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Loading State Spinner */
+.unp-slider.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--gold-color, #d4af37);
+  border-radius: 50%;
+  animation: sliderSpinner 0.8s linear infinite;
+  z-index: 30;
+}
+
+@keyframes sliderSpinner {
+  to { transform: rotate(360deg); }
+}
+
+/* 2. SLIDER CONTROLS & BUTTONS */
+.slider-controls {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+  padding: 0 var(--space-md, 16px);
+  z-index: 20;
+  pointer-events: none;
+}
+
+.slider-controls button,
+.autoplay-toggle {
+  min-width: 44px;
+  min-height: 44px;
+  background: rgba(13, 27, 42, 0.8);
+  color: var(--white, #ffffff);
+  border: 2px solid transparent;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: var(--transition, all 0.3s ease);
+}
+
+.slider-controls button:hover,
+.autoplay-toggle:hover {
+  background: var(--gold-color, #d4af37);
+  color: var(--primary-color, #0d1b2a);
+}
+
+.slider-controls button:focus-visible,
+.autoplay-toggle:focus-visible,
+.dot:focus-visible {
+  outline: 3px solid var(--gold-color, #d4af37);
+  outline-offset: 2px;
+}
+
+/* 3. DOTS & TOUCH TARGETS */
+.slider-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 20;
+}
+
+.dot {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: var(--transition, all 0.3s ease);
+}
+
+.dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+}
+
+.dot[aria-current="true"],
+.dot.active {
+  background: var(--gold-color, #d4af37);
+  width: 28px;
+  border-radius: 6px;
+}
+
+.dot:hover {
+  background: var(--white, #ffffff);
+}
+
+/* 4. SLIDE COUNTER, HINTS & BACKDROP FILTER (Point 2) */
+.slide-counter,
+.keyboard-hint,
+.loop-badge {
+  position: absolute;
+  background: rgba(13, 27, 42, 0.75);
+  color: var(--white, #ffffff);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm, 4px);
+  font-size: 0.85rem;
+  z-index: 20;
+  -webkit-backdrop-filter: blur(4px); /* Point 2: Safari support */
+  backdrop-filter: blur(4px);
+}
+
+.slide-counter { top: 20px; right: 20px; }
+.keyboard-hint { bottom: 20px; left: 20px; font-size: 0.75rem; opacity: 0.8; }
+.loop-badge { top: 20px; left: 20px; background: var(--gold-color, #d4af37); color: var(--primary-color, #0d1b2a); font-weight: 700; font-size: 0.75rem; }
+
+/* 5. PROGRESS BAR (Point 1, 3) */
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: var(--gold-color, #d4af37);
+  width: 0%;
+  z-index: 25;
+  pointer-events: none;
+  will-change: width; /* Point 3: Performance optimization kwa width animation */
+}
+
+.progress-bar.animation {
+  animation-duration: 5s; /* Point 1: Fallback duration ya progress bar */
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-name: sliderProgress;
+}
+
+@keyframes sliderProgress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* 6. SCREEN READER ONLY & MODERN CLIP-PATH (Point 4) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%); /* Point 4: Modern best practice */
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================
+   ADVANCED ACCESSIBILITY & MEDIA QUERIES (Points 5, 6)
+   ========================================== */
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .unp-slide,
+  .dot,
+  .slider-controls button,
+  .autoplay-toggle {
+    transition: none !important;
+  }
+  .progress-bar.animation {
+    animation: none !important;
+  }
+}
+
+/* Point 5: Reduced Transparency Support */
+@media (prefers-reduced-transparency: reduce) {
+  .slide-counter,
+  .keyboard-hint,
+  .loop-badge,
+  .slider-controls button,
+  .autoplay-toggle {
+    background: #0d1b2a !important; /* Ondoa transparency kwa watumiaji wanaoipunguza */
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: more) {
+  .dot,
+  .slider-controls button,
+  .autoplay-toggle {
+    border: 2px solid #ffffff !important;
+  }
+  .dot[aria-current="true"] {
+    border-color: var(--gold-color, #d4af37) !important;
+  }
+}
+
+/* Point 6: Dark Mode Support (Consistency kwa Dots, Vitufe, na Badges) */
+@media (prefers-color-scheme: dark) {
+  .slide-counter,
+  .keyboard-hint {
+    background: rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .slider-controls button,
+  .autoplay-toggle {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  .dot {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Responsive kwa Simu Ndogo (chini ya 480px) */
+@media (max-width: 480px) {
+  .unp-slider {
+    min-height: 280px;
+  }
+  .slide-counter {
+    top: 10px;
+    right: 10px;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+  .keyboard-hint,
+  .loop-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+  .keyboard-hint { bottom: 10px; left: 10px; }
+  .loop-badge { top: 10px; left: 10px; }
+}

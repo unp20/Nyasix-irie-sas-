@@ -1,0 +1,409 @@
+/* ==========================================================================
+   UNP TOURS — NEWSLETTER FORM CSS (V3 ENTERPRISE ULTIMATE)
+   British Council Style & Luxury Tourism Framework
+   ========================================================== */
+
+/* 1. Hamisha :root Nje ya @layer components kwa cascade sahihi */
+:root {
+  /* 31-38. Design Tokens & New Newsletter Specific Tokens */
+  --newsletter-input-bg: #ffffff;
+  --newsletter-button-bg: var(--royal-gold, #d4af37);
+  --newsletter-error-color: #c62828;
+  --newsletter-success-color: var(--royal-gold, #d4af37);
+  --newsletter-focus-ring: 0 0 0 3px var(--gold-border, rgba(212, 175, 55, 0.4));
+  --newsletter-radius: var(--radius-md, 8px);
+  --newsletter-padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
+  --newsletter-gap: var(--spacing-md, 16px);
+  --newsletter-font-size: var(--text-base, 1rem);
+  --newsletter-line-height: var(--leading-normal, 1.6);
+  --newsletter-transition: var(--transition-normal, 0.3s ease);
+}
+
+/* 6. Dark Mode kwa :root / Form Container */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --newsletter-input-bg: rgba(255, 255, 255, 0.05);
+  }
+  .newsletter-form {
+    background-color: rgba(3, 43, 26, 0.6);
+    border-color: var(--gold-border, rgba(212, 175, 55, 0.2));
+  }
+}
+
+/* 2. Fallback kwa Browsers za Zamani Zisizounga Mkono @layer */
+@supports not (animation: foo) {
+  /* Fallback msingi endapo inahitajika */
+}
+
+/* 30. Fallback ya :focus-visible kwa vivinjari vya zamani */
+@supports not selector(:focus-visible) {
+  .newsletter-form input[type="email"]:focus,
+  .newsletter-form button[type="submit"]:focus {
+    outline: 2px solid var(--royal-gold, #d4af37);
+  }
+}
+
+/* 4 & 30. @layer Architecture (Base, Components, Utilities) */
+@layer components {
+
+  /* 23, 24. Styling ya .newsletter-form, min-height & Container Queries */
+  .newsletter-form {
+    container-type: inline-size;
+    container-name: newsletter;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--newsletter-gap);
+    max-width: 100%;
+    min-height: 100px;
+    padding: var(--spacing-md, 16px);
+    border-radius: var(--newsletter-radius);
+    contain: layout style;
+    transition: box-shadow var(--newsletter-transition);
+  }
+
+  /* 5. :focus-within State kwa Container */
+  .newsletter-form:focus-within {
+    box-shadow: var(--shadow-gold, 0 4px 15px rgba(212, 175, 55, 0.25));
+  }
+
+  /* 17, 19, 29. Styling ya Input na States zake (Bila !important ya ziada) */
+  .newsletter-form input[type="email"] {
+    padding: var(--newsletter-padding);
+    background-color: var(--newsletter-input-bg);
+    border: 1px solid var(--border-color, #e2e8f0);
+    color: var(--text-dark, #222222);
+    border-radius: var(--newsletter-radius);
+    font-family: var(--font-sans, sans-serif);
+    font-size: var(--newsletter-font-size);
+    outline: none;
+    min-width: 200px;
+    min-height: 44px;
+    transition: border-color var(--newsletter-transition), box-shadow var(--newsletter-transition), background-color var(--newsletter-transition);
+  }
+
+  /* 20. Firefox Placeholder Opacity Fix */
+  .newsletter-form input[type="email"]::placeholder {
+    color: var(--text-muted, #4a5568);
+    opacity: 1;
+  }
+
+  /* Input Hover, Focus, Active & Busy States */
+  .newsletter-form input[type="email"]:hover:not(:disabled):not(:read-only) {
+    border-color: var(--royal-gold, #d4af37);
+  }
+
+  @supports selector(:focus-visible) {
+    .newsletter-form input[type="email"]:focus-visible {
+      border-color: var(--royal-gold, #d4af37);
+      box-shadow: var(--newsletter-focus-ring);
+    }
+  }
+
+  .newsletter-form input[type="email"]:active:not(:disabled) {
+    transform: scale(0.99);
+  }
+
+  .newsletter-form input[type="email"]:read-only {
+    background-color: var(--light-bg, #f8f9fa);
+    cursor: default;
+  }
+
+  .newsletter-form input[type="email"]:disabled {
+    background-color: var(--light-bg, #f8f9fa);
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* 10. input[aria-busy="true"] State */
+  .newsletter-form input[type="email"][aria-busy="true"] {
+    cursor: wait;
+    opacity: 0.7;
+  }
+
+  .newsletter-form input[type="email"][aria-invalid="true"] {
+    border-color: var(--newsletter-error-color);
+  }
+
+  /* 7, 8, 11. Button Styling, Active, Hover, Disabled & Focus-Visible */
+  .newsletter-form button[type="submit"] {
+    padding: var(--newsletter-padding);
+    background-color: var(--newsletter-button-bg);
+    color: var(--dark-green, #032b1a);
+    font-weight: var(--weight-bold, 700);
+    border: none;
+    border-radius: var(--newsletter-radius);
+    cursor: pointer;
+    min-height: 44px;
+    transition: background-color var(--newsletter-transition), transform var(--transition-fast, 0.2s ease), box-shadow var(--newsletter-transition);
+  }
+
+  .newsletter-form button[type="submit"]:hover:not(:disabled) {
+    background-color: var(--gold-hover, #b89728);
+  }
+
+  .newsletter-form button[type="submit"]:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  @supports selector(:focus-visible) {
+    .newsletter-form button[type="submit"]:focus-visible {
+      outline: 2px solid var(--royal-gold, #d4af37);
+      outline-offset: 2px;
+      box-shadow: var(--newsletter-focus-ring);
+    }
+  }
+
+  .newsletter-form button[type="submit"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Dark Mode kwa Button */
+  @media (prefers-color-scheme: dark) {
+    .newsletter-form button[type="submit"] {
+      background-color: var(--royal-gold, #d4af37);
+      color: var(--dark-green, #032b1a);
+    }
+  }
+
+  /* Form aria-busy State */
+  .newsletter-form[aria-busy="true"] {
+    cursor: wait;
+    opacity: 0.8;
+  }
+
+  /* GDPR Checkbox Styling */
+  .newsletter-gdpr-container {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm, 8px);
+    font-size: var(--text-sm, 0.875rem);
+    color: var(--text-muted, #4a5568);
+    line-height: var(--newsletter-line-height);
+  }
+
+  .newsletter-gdpr-container input[type="checkbox"] {
+    accent-color: var(--royal-gold, #d4af37);
+    margin-top: 3px;
+    min-width: 18px;
+    min-height: 18px;
+    cursor: pointer;
+  }
+
+  .newsletter-gdpr-container a {
+    color: var(--royal-gold, #d4af37);
+    text-decoration: underline;
+  }
+
+  /* Honeypot Kufichwa Kabisa */
+  .newsletter-honeypot {
+    display: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+  }
+
+  /* Keyframes za Shake na Pulse */
+  @keyframes unp-shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+
+  @keyframes unp-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+    70% { box-shadow: 0 0 0 12px rgba(212, 175, 55, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+  }
+
+  .newsletter-form input.unp-shake {
+    animation: unp-shake var(--transition-fast, 0.2s ease-in-out);
+    border-color: var(--newsletter-error-color);
+  }
+
+  .newsletter-form input.unp-pulse {
+    animation: unp-pulse var(--transition-slow, 0.5s ease-in-out);
+    border-color: var(--royal-gold, #d4af37);
+  }
+
+  /* 16, 26. Message Styling, Fade Animations & contain-intrinsic-size */
+  .newsletter-msg {
+    font-size: var(--text-sm, 0.875rem);
+    margin-top: var(--spacing-xs, 4px);
+    opacity: 0;
+    transition: opacity var(--newsletter-transition);
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 20px;
+  }
+
+  @keyframes unp-fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes unp-fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(4px); }
+  }
+
+  .newsletter-msg.fade-in {
+    animation: unp-fadeIn var(--newsletter-transition) forwards;
+  }
+
+  .newsletter-msg.fade-out {
+    animation: unp-fadeOut var(--newsletter-transition) forwards;
+  }
+
+  /* 15. Loading Message State */
+  .newsletter-msg.is-loading {
+    color: var(--text-muted, #4a5568);
+    opacity: 1;
+    font-style: italic;
+  }
+
+  /* 18, 19, 20. Error & Success Icons (✕ na ✓) & Rich Text Support */
+  .newsletter-msg.is-error {
+    color: var(--newsletter-error-color);
+    opacity: 1;
+  }
+  .newsletter-msg.is-error::before {
+    content: "✕ ";
+    font-weight: bold;
+  }
+
+  .newsletter-msg.is-success {
+    color: var(--newsletter-success-color);
+    opacity: 1;
+  }
+  .newsletter-msg.is-success::before {
+    content: "✓ ";
+    font-weight: bold;
+  }
+
+  .newsletter-msg::first-line {
+    font-weight: var(--weight-semibold, 600);
+  }
+
+  /* Spinner Styling */
+  .unp-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: unp-spin 0.6s linear infinite;
+  }
+
+  @keyframes unp-spin {
+    to { transform: rotate(360deg); }
+  }
+
+}
+
+/* ==========================================================================
+   4. MEDIA QUERIES & UTILITIES LAYER (Responsive, Dark Mode & Accessibility)
+   ========================================================================== */
+@layer utilities {
+
+  /* 21. Responsive kwa Tablet (min-width: 481px and max-width: 768px) */
+  @media (min-width: 481px) and (max-width: 768px) {
+    .newsletter-form {
+      padding: var(--spacing-lg, 24px);
+    }
+  }
+
+  /* Simu Ndogo (max-width: 480px) */
+  @media (max-width: 480px) {
+    .newsletter-form {
+      flex-direction: column;
+    }
+    .newsletter-form input[type="email"],
+    .newsletter-form button[type="submit"] {
+      width: 100%;
+      min-width: 100%;
+    }
+  }
+
+  /* 22. Landscape Mode Support */
+  @media (orientation: landscape) and (max-height: 600px) {
+    .newsletter-form {
+      gap: var(--spacing-xs, 4px);
+      padding: var(--spacing-sm, 8px);
+    }
+  }
+
+  /* 25. RTL Support (Arabic / Right-to-Left Languages) */
+  [dir="rtl"] .newsletter-form {
+    text-align: right;
+  }
+  [dir="rtl"] .newsletter-msg.is-error::before {
+    content: " ✕";
+  }
+  [dir="rtl"] .newsletter-msg.is-success::before {
+    content: " ✓";
+  }
+
+  /* 27. prefers-reduced-data Support */
+  @media (prefers-reduced-data: reduce) {
+    .newsletter-form input[type="email"],
+    .newsletter-form button[type="submit"] {
+      background-image: none;
+    }
+  }
+
+  /* 28. Print Media Support */
+  @media print {
+    .newsletter-form {
+      border: 1px solid #000;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    .newsletter-form button[type="submit"] {
+      display: none;
+    }
+  }
+
+  /* Accessibility: Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    .newsletter-form input.unp-shake,
+    .newsletter-form input.unp-pulse,
+    .unp-spinner,
+    .newsletter-msg.fade-in,
+    .newsletter-msg.fade-out {
+      animation: none !important;
+    }
+    .newsletter-form input[type="email"],
+    .newsletter-form button[type="submit"],
+    .newsletter-msg {
+      transition: none !important;
+    }
+  }
+
+  /* 13. High Contrast Support */
+  @media (prefers-contrast: more) {
+    .newsletter-form input[type="email"],
+    .newsletter-form button[type="submit"] {
+      border: 2px solid currentColor !important;
+    }
+    .newsletter-msg.is-error {
+      color: #ff0000;
+      font-weight: bold;
+    }
+    .newsletter-msg.is-success {
+      color: #008000;
+      font-weight: bold;
+    }
+  }
+
+  /* 14. Forced Colors Support (Windows High Contrast Mode) */
+  @media (forced-colors: active) {
+    .newsletter-form input[type="email"],
+    .newsletter-form button[type="submit"] {
+      border: 2px solid ButtonText !important;
+      background-color: ButtonFace !important;
+      color: ButtonText !important;
+    }
+  }
+
+}

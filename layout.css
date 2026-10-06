@@ -1,0 +1,175 @@
+/* ==========================================================================
+   Enterprise Utilities V3 (Final Extended)
+   ========================================================================== */
+
+@layer base {
+  :root {
+    --border-color: #e5e7eb;
+    --color-gold: #d4af37;
+    --color-dark: #111827;
+  }
+
+  [aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  [aria-hidden="true"] {
+    display: none !important;
+  }
+}
+
+@layer components {
+  /* Komponenti rasmi za mfumo zinazotumia rangi za :root */
+  .btn-gold {
+    background-color: var(--color-gold);
+    color: var(--color-dark);
+  }
+  
+  .card-dark {
+    background-color: var(--color-dark);
+    color: #ffffff;
+    border-color: var(--border-color);
+  }
+}
+
+@layer utilities {
+  /* Design Tokens & Colors */
+  .bg-gold { background-color: var(--color-gold); }
+  .text-gold { color: var(--color-gold); }
+  .bg-dark { background-color: var(--color-dark); }
+  .text-dark { color: var(--color-dark); }
+  .border-color { border-color: var(--border-color); }
+
+  /* Rotations */
+  .rotate-0 { transform: rotate(0deg); }
+  .rotate-45 { transform: rotate(45deg); }
+  .rotate-90 { transform: rotate(90deg); }
+  .rotate-180 { transform: rotate(180deg); }
+
+  /* Transforms: Translate & Fractions (Escaped Slashes) */
+  .translate-x-0 { transform: translateX(0); }
+  .translate-x-full { transform: translateX(100%); }
+  .translate-x-1\/2 { transform: translateX(50%); }
+  .translate-x-1\/3 { transform: translateX(33.333333%); }
+  
+  .translate-y-0 { transform: translateY(0); }
+  .translate-y-full { transform: translateY(100%); }
+  .translate-y-1\/2 { transform: translateY(50%); }
+
+  /* Scale Utilities */
+  .scale-0 { transform: scale(0); }
+  .scale-50 { transform: scale(0.5); }
+  .scale-75 { transform: scale(0.75); }
+  .scale-95 { transform: scale(0.95); }
+  .scale-100 { transform: scale(1); }
+  .scale-105 { transform: scale(1.05); }
+  .scale-125 { transform: scale(1.25); }
+  .scale-150 { transform: scale(1.5); }
+
+  /* Transitions & Timing Functions */
+  .transition {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  .transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  .transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  .transition-transform {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  .transition-opacity {
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  .transition-shadow {
+    transition-property: box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  /* Durations */
+  .duration-75 { transition-duration: 75ms; }
+  .duration-150 { transition-duration: 150ms; }
+  .duration-300 { transition-duration: 300ms; }
+  .duration-500 { transition-duration: 500ms; }
+  .duration-700 { transition-duration: 700ms; }
+  .duration-1000 { transition-duration: 1000ms; }
+
+  /* Easing */
+  .ease-linear { transition-timing-function: linear; }
+  .ease-in { transition-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+  .ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+  .ease-in-out { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+
+  /* Animations */
+  .animate-spin { animation: unp-spin 1s linear infinite; }
+  .animate-pulse { animation: unp-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  .animate-bounce { animation: unp-bounce 1s infinite; }
+  .animate-ping { animation: unp-ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
+  .animate-fade { animation: unp-fade 0.3s ease-in-out; }
+  .animate-none { animation: none; }
+
+  /* Accessibility Utilities */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+}
+
+/* Keyframes Zote Muhimu */
+@keyframes unp-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes unp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}
+
+@keyframes unp-bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@keyframes unp-ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes unp-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

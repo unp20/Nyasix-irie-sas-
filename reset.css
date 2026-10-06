@@ -1,0 +1,288 @@
+/* ==========================================================================
+   File Name: reset.css
+   Version: 3.0.0
+   Date: 2026-10-06
+   Description: Ultimate Modern CSS Reset for Enterprise & UNP Tours Projects
+   ========================================================================== */
+
+/* 1. Box-sizing na Global Isolation */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 40. Isolation kwenye body kwa ajili ya Stacking Context */
+body {
+  isolation: isolate;
+}
+
+/* 1 & 2. Html na Body Reset ya Urefu na Typography */
+html {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+  height: 100%;
+}
+
+/* 3. Smooth scroll na kuzingatia motion preferences */
+html:focus-within {
+  scroll-behavior: smooth;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  text-rendering: optimizeSpeed;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 39. Utumiaji wa :where() kupunguza Specificity */
+:where(h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd) {
+  margin: 0;
+  padding: 0;
+}
+
+/* 4. Heading za ziada h5 na h6 */
+:where(h1, h2, h3, h4, h5, h6) {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* 5. Horizontal Rule Reset */
+hr {
+  border: none;
+  height: 1px;
+  background: currentColor;
+  margin: 1rem 0;
+}
+
+/* 6. Pre na Code Reset */
+pre, code, kbd, samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+/* 7. Small Text Reset */
+small {
+  font-size: 0.875em;
+}
+
+/* 8. Strong na B Reset */
+strong, b {
+  font-weight: bolder;
+}
+
+/* 9. Sub na Sup Reset */
+sub, sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+sub { bottom: -0.25em; }
+sup { top: -0.5em; }
+
+/* 10. Abbreviations Reset */
+abbr[title] {
+  text-decoration: underline dotted;
+  cursor: help;
+}
+
+/* 11. Media Aspect Ratio & Height */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* 12. SVG Fill kufuta currentColor */
+svg {
+  fill: currentColor;
+}
+
+/* 13. Iframe Border Reset */
+iframe {
+  border: none;
+}
+
+/* 14. Audio na Video Display */
+audio, video {
+  display: block;
+}
+
+/* List Resets */
+:where(ul, ol) {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Links Reset */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 15. Textarea Resize */
+textarea {
+  resize: vertical;
+}
+
+/* 16. Search Input Appearance */
+input[type="search"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* 17. Number Input Spinners Removal */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* 18. Checkbox na Radio Consistency */
+input[type="checkbox"], input[type="radio"] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+/* 19. Button Background Reset */
+button, input, optgroup, select, textarea {
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}
+button {
+  cursor: pointer;
+  background: none;
+}
+
+/* 20. Fieldset na Legend Reset */
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+legend {
+  padding: 0;
+}
+
+/* 21. Label Display */
+label {
+  display: inline-block;
+}
+
+/* 22. Select Appearance */
+select {
+  appearance: none;
+}
+
+/* 23. Table Collapse na Spacing */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+
+/* 24. Caption Text Align */
+caption {
+  text-align: left;
+}
+
+/* 25. TH na TD Cells */
+th, td {
+  padding: 0;
+  text-align: left;
+}
+
+/* 26. Hidden Attribute Reset */
+[hidden] {
+  display: none !important;
+}
+
+/* 27. Focus-visible Default Outline */
+:focus-visible {
+  outline: 2px solid var(--color-gold, #d4af37);
+  outline-offset: 2px;
+}
+
+/* 31. Dialog Modal Reset */
+dialog {
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+/* 32. Details na Summary Cursor */
+summary {
+  cursor: pointer;
+}
+
+/* 33. Progress na Meter */
+progress, meter {
+  vertical-align: baseline;
+}
+
+/* 34. Template Display */
+template {
+  display: none;
+}
+
+/* 35. ARIA Disabled State */
+[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* 36. ARIA Hidden State */
+[aria-hidden="true"] {
+  display: none !important;
+}
+
+/* 37. Selection Styling */
+::selection {
+  background: var(--color-gold, #d4af37);
+  color: var(--color-dark, #111827);
+}
+
+/* 38. Placeholder Styling */
+::placeholder {
+  opacity: 1;
+  color: var(--text-muted, #9ca3af);
+}
+
+/* 28. Reduced Motion Preferences & Fallbacks (53, 54, 55) */
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 29. Reduced Transparency Preferences */
+@media (prefers-reduced-transparency: reduce) {
+  .backdrop-blur, [class*="backdrop-"] {
+    backdrop-filter: none !important;
+    background-color: var(--color-dark, #111827) !important;
+  }
+}
+
+/* 30. High Contrast Preferences */
+@media (prefers-contrast: more) {
+  :root {
+    --border-color: #000000;
+  }
+  body {
+    border: 1px solid currentColor;
+  }
+}

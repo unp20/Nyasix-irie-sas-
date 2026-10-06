@@ -1,0 +1,279 @@
+/**
+ * @file sw-register.js
+ * @description Advanced Service Worker Registration & PWA Manager for UNP Tours
+ * @version 2.1.0
+ * @date 2026-10-06
+ */
+
+const DEBUG_MODE = false;
+let deferredPrompt = null;
+let refreshing = false;
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 2000;
+
+// ==========================================
+// 1. SERVICE WORKER REGISTRATION & RETRY
+// ==========================================
+/**
+ * Registers the service worker with retry logic and backoff.
+ * @param {number} [retries=MAX_RETRIES] 
+ */
+async function registerServiceWorker(retries = MAX_RETRIES) {
+  if (!('serviceWorker' in navigator)) {
+    console.warn('[PWA] Kivinjari chako hakitumii Service Workers.');
+    showFallbackMessage();
+    return;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.register('/sw.js?v=2.1.0');
+    if (DEBUG_MODE) console.log('[PWA] Service Worker imesajiliwa:', registration.scope);
+
+    // Periodic & pageshow update check
+    setInterval(() => checkForUpdates(registration), 3600000);
+    window.addEventListener('pageshow', () => checkForUpdates(registration));
+
+    if (registration.waiting) showUpdateBanner(registration);
+
+    registration.onupdatefound = () => {
+      const installingWorker = registration.installing;
+      if (installingWorker) {
+        installingWorker.onchange = () => {
+          if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            if (DEBUG_MODE) console.log('[PWA] Toleo jipya limepatikana.');
+            showUpdateBanner(registration);
+          }
+        };
+      }
+    };
+
+    checkStorageQuota();
+    checkStoragePersistence();
+
+  } catch (error) {
+    console.error('[PWA] Usajili umeshindikana:', error);
+    if (retries > 0) {
+      setTimeout(() => registerServiceWorker(retries - 1), RETRY_DELAY);
+    }
+  }
+}
+
+/**
+ * Checks for service worker updates manually.
+ * @param {ServiceWorkerRegistration} registration 
+ */
+function checkForUpdates(registration) {
+  registration.update().catch((err) => {
+    if (DEBUG_MODE) console.warn('[PWA] Update check failed:', err);
+  });
+}
+
+// Controller change listener
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => registerServiceWorker());
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
+}
+
+// ==========================================
+// 2. FALLBACK & UI NOTIFICATIONS
+// ==========================================
+function showFallbackMessage() {
+  const notice = document.createElement('div');
+  notice.className = 'pwa-fallback-notice';
+  notice.textContent = 'Kivinjari chako hakina uwezo kamili wa PWA. Tafadhali sasisha kivinjari chako.';
+  document.body.prepend(notice);
+}
+
+function showUpdateBanner(registration) {
+  if (document.getElementById('pwa-update-banner')) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'pwa-update-banner';
+  banner.className = 'update-banner';
+  banner.setAttribute('role', 'alert');
+  banner.setAttribute('aria-live', 'polite');
+  banner.setAttribute('aria-atomic', 'true');
+
+  banner.innerHTML = `
+    <span>Toleo jipya la UNP Tours lipo tayari!</span>
+    <div class="update-actions">
+      <button type="button" id="pwa-reload-btn" aria-label="Sasisha Sasa">Sasisha Sasa</button>
+      <button type="button" id="pwa-dismiss-btn" aria-label="Funga taarifa">Baadaye</button>
+    </div>
+  `;
+
+  document.body.appendChild(banner);
+
+  document.getElementById('pwa-reload-btn').addEventListener('click', () => {
+    if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    banner.remove();
+  });
+
+  document.getElementById('pwa-dismiss-btn').addEventListener('click', () => banner.remove());
+}
+
+// ==========================================
+// 3. OFFLINE / ONLINE CONNECTIVITY
+// ==========================================
+window.addEventListener('DOMContentLoaded', () => updateConnectivityStatus(navigator.onLine));
+window.addEventListener('online', () => updateConnectivityStatus(true));
+window.addEventListener('offline', () => updateConnectivityStatus(false));
+
+/**
+ * Updates connectivity status banner.
+ * @param {boolean} isOnline 
+ */
+function updateConnectivityStatus(isOnline) {
+  let indicator = document.getElementById('connectivity-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.id = 'connectivity-indicator';
+    indicator.className = 'connectivity-banner';
+    indicator.setAttribute('role', 'alert');
+    indicator.setAttribute('aria-live', 'polite');
+    document.body.prepend(indicator);
+  }
+
+  if (isOnline) {
+    indicator.textContent = 'Umeunganishwa tena mtandaoni!';
+    indicator.className = 'connectivity-banner online';
+    setTimeout(() => indicator.remove(), 4000);
+  } else {
+    indicator.textContent = 'Huna mtandao wa intaneti. Unatumia hali ya nje ya mtandao.';
+    indicator.className = 'connectivity-banner offline';
+  }
+}
+
+// ==========================================
+// 4. INSTALL PROMPT (MOBILE ONLY)
+// ==========================================
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  // Angalia kama ni simu pekee kupitia media query ya screen width au touch
+  const isMobile = window.matchMedia('(max-width: 768px)').matches || navigator.maxTouchPoints > 0;
+  if (!isMobile || localStorage.getItem('pwa-install-dismissed')) return;
+
+  deferredPrompt = e;
+  showInstallBanner();
+});
+
+function showInstallBanner() {
+  if (document.getElementById('pwa-install-banner')) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'pwa-install-banner';
+  banner.className = 'install-banner';
+  banner.setAttribute('role', 'alert');
+  banner.setAttribute('aria-live', 'polite');
+
+  banner.innerHTML = `
+    <span>Weka UNP Tours kwenye simu yako!</span>
+    <div class="install-actions">
+      <button type="button" id="pwa-install-btn" aria-label="Weka App">Weka App</button>
+      <button type="button" id="pwa-install-dismiss" aria-label="Funga taarifa">Baadaye</button>
+    </div>
+  `;
+
+  document.body.appendChild(banner);
+
+  document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (DEBUG_MODE) console.log(`[PWA] Install outcome: ${outcome}`);
+    deferredPrompt = null;
+    banner.remove();
+  });
+
+  document.getElementById('pwa-install-dismiss').addEventListener('click', () => {
+    localStorage.setItem('pwa-install-dismissed', 'true');
+    banner.remove();
+  });
+}
+
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  const banner = document.getElementById('pwa-install-banner');
+  if (banner) banner.remove();
+});
+
+// ==========================================
+// 5. PUSH NOTIFICATIONS & BACKGROUND SYNC
+// ==========================================
+/**
+ * Requests push permission and subscribes user.
+ */
+async function subscribeUserToPush() {
+  try {
+    if (!('PushManager' in window)) return;
+    const registration = await navigator.serviceWorker.ready;
+    let subscription = await registration.pushManager.getSubscription();
+    
+    if (!subscription) {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: 'YOUR_PUBLIC_VAPID_KEY_HERE'
+        });
+        if (DEBUG_MODE) console.log('[PWA] Push Subscribed:', subscription);
+      }
+    }
+  } catch (error) {
+    console.error('[PWA] Push subscription error:', error);
+  }
+}
+
+/**
+ * Triggers background sync for bookings.
+ */
+async function triggerBackgroundSync() {
+  try {
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
+      const registration = await navigator.serviceWorker.ready;
+      await registration.sync.register('sync-bookings');
+      if (DEBUG_MODE) console.log('[PWA] Background sync triggered.');
+    }
+  } catch (error) {
+    console.warn('[PWA] Background sync failed:', error);
+  }
+}
+
+// ==========================================
+// 6. STORAGE & CACHE UTILITIES
+// ==========================================
+async function checkStorageQuota() {
+  if (navigator.storage && navigator.storage.estimate) {
+    try {
+      const estimate = await navigator.storage.estimate();
+      const usageMB = (estimate.usage / (1024 * 1024)).toFixed(2);
+      const quotaMB = (estimate.quota / (1024 * 1024)).toFixed(2);
+      if (DEBUG_MODE) console.log(`[PWA] Storage: ${usageMB} MB / ${quotaMB} MB`);
+    } catch (err) {
+      if (DEBUG_MODE) console.warn('[PWA] Storage estimate error:', err);
+    }
+  }
+}
+
+async function checkStoragePersistence() {
+  if (navigator.storage && navigator.storage.persist) {
+    await navigator.storage.persist();
+  }
+}
+
+/**
+ * Clears all application caches (Cache Clear UI helper).
+ */
+async function clearAppCache() {
+  if ('caches' in window) {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(key => caches.delete(key)));
+    window.location.reload();
+  }
+}

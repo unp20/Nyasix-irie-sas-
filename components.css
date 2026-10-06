@@ -1,0 +1,112 @@
+/* ==========================================================
+   UNP TOURS — ADVANCED TOAST NOTIFICATIONS EXTENSION
+   ========================================================== */
+
+/* 1. Toast Positions (Sehemu tofauti za kuonekana kwenye skrini) */
+.toast-notification.top-right {
+  top: 30px;
+  right: 30px;
+  bottom: auto;
+  left: auto;
+  transform: translateY(-50px);
+}
+
+.toast-notification.top-right.show,
+.toast-notification.top-center.show {
+  transform: translateY(0);
+}
+
+.toast-notification.top-center {
+  top: 30px;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translateX(-50%) translateY(-50px);
+}
+
+.toast-notification.bottom-center {
+  bottom: 30px;
+  left: 50%;
+  right: auto;
+  top: auto;
+  transform: translateX(-50%) translateY(50px);
+}
+
+.toast-notification.bottom-center.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 2. Toast Types (Aina za ujumbe: Success, Error, Warning, Info) */
+.toast-notification.success {
+  border-color: #22c55e;
+  background: rgba(3, 43, 26, 0.95);
+}
+
+.toast-notification.error {
+  border-color: #ef4444;
+  background: rgba(43, 3, 3, 0.95);
+}
+
+.toast-notification.warning {
+  border-color: #f59e0b;
+  background: rgba(43, 33, 3, 0.95);
+}
+
+.toast-notification.info {
+  border-color: #3b82f6;
+  background: rgba(3, 25, 43, 0.95);
+}
+
+/* 3. Toast İçeriği & Icons Layout */
+.toast-content-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.toast-icon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 4. Auto-Dismiss & Transition Smoothness */
+.toast-notification {
+  transition: transform var(--transition-normal), opacity var(--transition-normal);
+}
+
+/* 5. Close Button ndani ya Toast */
+.toast-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--pure-white);
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+  margin-left: var(--spacing-md);
+}
+
+.toast-close-btn:hover {
+  opacity: 1;
+}
+
+/* 6. Stack Toasts (Ujumbe mwingi ukija unapangana juu kwa juu) */
+.toast-container-stack {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  z-index: var(--z-sticky);
+  pointer-events: none;
+}
+
+.toast-container-stack .toast-notification {
+  position: relative;
+  bottom: auto;
+  right: auto;
+  pointer-events: auto;
+}

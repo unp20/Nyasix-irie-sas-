@@ -1,0 +1,378 @@
+/**
+ * ==========================================
+ * UNP TOURS - MASTER HERO SLIDER (V2 - 1% Optimized)
+ * ==========================================
+ */
+class HeroSlider {
+  constructor(selector, options = {}) {
+    this.container = document.querySelector(selector);
+    
+    if (!this.container) {
+      console.warn(`[UNP Tours HeroSlider]: Container "${selector}" haijapatikana kwenye DOM.`);
+      return;
+    }
+
+    this.options = Object.assign({
+      interval: 5000,
+      autoplay: true
+    }, options);
+
+    this.slides = this.container.querySelectorAll('.unp-slide');
+    
+    if (this.slides.length === 0) {
+      console.error('[UNP Tours HeroSlider]: Hakuna slides zilizopatikana kwenye slider!');
+      return;
+    }
+
+    this.currentIndex = 0;
+    this.slideCount = this.slides.length;
+    this.isPlaying = this.options.autoplay;
+    this.timer = null;
+    this.wasPlayingBeforeHidden = false;
+    
+    this.touchStartX = 0;
+    this.touchEndX = 0;
+
+    this.init();
+  }
+
+  init() {
+    this.container.setAttribute('role', 'region');
+    this.container.setAttribute('aria-roledescription', 'carousel');
+    this.container.setAttribute('aria-label', 'Picha za vivutio vya UNP Tours');
+    this.container.setAttribute('aria-live', 'polite');
+    this.container.setAttribute('aria-atomic', 'true');
+    this.container.setAttribute('tabindex', '0');
+
+    this.cacheElements();
+    this.setupAccessibilityAttributes();
+    this.preloadImages(); // Point 8: Image Preloading
+    this.bindEvents();
+    this.updateSlider();
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      this.isPlaying = false;
+    }
+
+    if (this.isPlaying) {
+      this.play();
+    }
+  }
+
+  cacheElements() {
+    this.dots = this.container.querySelectorAll('.dot');
+    this.prevBtn = this.container.querySelector('.slider-prev');
+    this.nextBtn = this.container.querySelector('.slider-next');
+    this.counter = this.container.querySelector('.slide-counter');
+    this.autoplayToggle = this.container.querySelector('.autoplay-toggle');
+    this.progressBar = this.container.querySelector('.progress-bar');
+    
+    // Point 4: Live Announcement element maalum kwa ajili ya Screen Readers
+    this.announcer = this.container.querySelector('.slider-announcer') || this.createAnnouncer();
+  }
+
+  createAnnouncer() {
+    const el = document.createElement('div');
+    el.className = 'slider-announcer sr-only';
+    el.style.cssText = 'position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+    el.setAttribute('aria-live', 'polite');
+    this.container.appendChild(el);
+    return el;
+  }
+
+  setupAccessibilityAttributes() {
+    this.slides.forEach((slide, index) => {
+      slide.setAttribute('role', 'group');
+      slide.setAttribute('aria-roledescription', 'slide');
+      slide.setAttribute('aria-label', `Slide ${index + 1} kati ya ${this.slideCount}`);
+      slide.setAttribute('aria-hidden', index === 0 ? 'false' : 'true');
+    });
+
+    if (this.prevBtn) this.prevBtn.setAttribute('aria-label', 'Slide iliyopita');
+    if (this.nextBtn) this.nextBtn.setAttribute('aria-label', 'Slide inayofuata');
+
+    this.dots.forEach((dot, index) => {
+      dot.setAttribute('aria-label', `Nenda kwenye slide ${index + 1}`);
+      dot.setAttribute('aria-current', index === 0 ? 'true' : 'false');
+    });
+
+    if (this.autoplayToggle) {
+      this.autoplayToggle.setAttribute('aria-pressed', this.isPlaying ? 'true' : 'false');
+      this.autoplayToggle.setAttribute('aria-label', 'Simamisha au endesha autoplay');
+    }
+  }
+
+  // Point 8: Preload Picha zinazofuata ili zisichelewe
+  preloadImages() {
+    this.slides.forEach((slide) => {
+      const img = slide.querySelector('img');
+      if (img && img.dataset.src) {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = img.dataset.src;
+        document.head.appendChild(link);
+      }
+    });
+  }
+
+  bindEvents() {
+    if (this.prevBtn) {
+      this._onPrev = () => { this.goToPrev(); this.resetAutoplay(); };
+      this.prevBtn.addEventListener('click', this._onPrev);
+    }
+
+    if (this.nextBtn) {
+      this._onNext = () => { this.goToNext(); this.resetAutoplay(); };
+      this.nextBtn.addEventListener('click', this._onNext);
+    }
+
+    this._dotHandlers = [];
+    this.dots.forEach((dot, index) => {
+      const handler = () => { this.goToSlide(index); this.resetAutoplay(); };
+      dot.addEventListener('click', handler);
+      this._dotHandlers.push({ dot, handler });
+    });
+
+    if (this.autoplayToggle) {
+      this._onToggle = () => { this.toggleAutoplay(); };
+      this.autoplayToggle.addEventListener('click', this._onToggle);
+    }
+
+    this._onKeydown = (e) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        this.goToPrev();
+        this.resetAutoplay();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        this.goToNext();
+        this.resetAutoplay();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        this.goToSlide(0);
+        this.resetAutoplay();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        this.goToSlide(this.slideCount - 1);
+        this.resetAutoplay();
+      } else if (e.key === ' ' || e.key === 'Spacebar') {
+        e.preventDefault();
+        this.toggleAutoplay();
+      }
+    };
+    this.container.addEventListener('keydown', this._onKeydown);
+
+    this._onTouchStart = (e) => { this.touchStartX = e.changedTouches[0].screenX; };
+    this._onTouchEnd = (e) => {
+      this.touchEndX = e.changedTouches[0].screenX;
+      this.handleSwipe();
+    };
+    this.container.addEventListener('touchstart', this._onTouchStart, { passive: true });
+    this.container.addEventListener('touchend', this._onTouchEnd, { passive: true });
+
+    // Point 2: Tumia state sahihi badala ya options.autoplay kwenye visibilitychange
+    this._onVisibilityChange = () => {
+      if (document.hidden) {
+        this.wasPlayingBeforeHidden = this.isPlaying;
+        this.pause();
+      } else if (this.wasPlayingBeforeHidden) {
+        this.play();
+      }
+    };
+    document.addEventListener('visibilitychange', this._onVisibilityChange);
+
+    this._onFocusIn = () => { this.pause(); };
+    this._onFocusOut = () => { if (this.isPlaying) this.play(); };
+    this.container.addEventListener('focusin', this._onFocusIn);
+    this.container.addEventListener('focusout', this._onFocusOut);
+  }
+
+  handleSwipe() {
+    const threshold = 50;
+    if (this.touchEndX < this.touchStartX - threshold) {
+      this.goToNext();
+      this.resetAutoplay();
+    }
+    if (this.touchEndX > this.touchStartX + threshold) {
+      this.goToPrev();
+      this.resetAutoplay();
+    }
+  }
+
+  updateSlider() {
+    this.slides.forEach((slide, index) => {
+      const isActive = index === this.currentIndex;
+      slide.classList.toggle('active', isActive);
+      slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+    });
+
+    this.dots.forEach((dot, index) => {
+      const isActive = index === this.currentIndex;
+      dot.classList.toggle('active', isActive);
+      dot.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+
+    if (this.counter) {
+      this.counter.textContent = `${this.currentIndex + 1} / ${this.slideCount}`;
+    }
+
+    // Point 4: Tangaza mabadiliko kupitia announcer maalum kwa screen readers
+    if (this.announcer) {
+      this.announcer.textContent = `Umehamia slide ya ${this.currentIndex + 1} kati ya ${this.slideCount}`;
+    }
+
+    this.container.dispatchEvent(new CustomEvent('slider:change', {
+      detail: { currentIndex: this.currentIndex, slideCount: this.slideCount }
+    }));
+  }
+
+  getCurrentIndex() { return this.currentIndex; }
+  getSlideCount() { return this.slideCount; }
+
+  goToNext() {
+    this.currentIndex = (this.currentIndex + 1) % this.slideCount;
+    this.updateSlider();
+  }
+
+  goToPrev() {
+    this.currentIndex = (this.currentIndex - 1 + this.slideCount) % this.slideCount;
+    this.updateSlider();
+  }
+
+  goToSlide(index) {
+    if (index >= 0 && index < this.slideCount) {
+      this.currentIndex = index;
+      this.updateSlider();
+    }
+  }
+
+  play() {
+    this.isPlaying = true;
+    if (this.progressBar) {
+      this.progressBar.classList.remove('animation');
+      void this.progressBar.offsetWidth;
+      this.progressBar.classList.add('animation');
+    }
+    if (this.autoplayToggle) {
+      this.autoplayToggle.innerHTML = '❚❚';
+      this.autoplayToggle.setAttribute('aria-pressed', 'true');
+    }
+    
+    clearInterval(this.timer);
+    this.timer = setInterval(() => {
+      this.goToNext();
+    }, this.options.interval);
+
+    this.container.dispatchEvent(new CustomEvent('slider:start'));
+  }
+
+  pause() {
+    this.isPlaying = false;
+    clearInterval(this.timer);
+    this.timer = null; // Point 1 & 6: Weka timer kuwa null waziwazi
+    if (this.progressBar) this.progressBar.classList.remove('animation');
+    if (this.autoplayToggle) {
+      this.autoplayToggle.innerHTML = '▶';
+      this.autoplayToggle.setAttribute('aria-pressed', 'false');
+    }
+
+    this.container.dispatchEvent(new CustomEvent('slider:pause'));
+  }
+
+  toggleAutoplay() {
+    if (this.isPlaying) {
+      this.wasPlayingBeforeHidden = false;
+      this.pause();
+    } else {
+      this.wasPlayingBeforeHidden = true;
+      this.play();
+    }
+  }
+
+  // Point 3: Zuia flicker kwa kutosafirisha/kurestart progress bar animation isivyostahili
+  resetAutoplay() {
+    if (this.isPlaying) {
+      clearInterval(this.timer);
+      this.timer = setInterval(() => {
+        this.goToNext();
+      }, this.options.interval);
+    }
+  }
+
+  destroy() {
+    this.pause();
+    
+    if (this.prevBtn) this.prevBtn.removeEventListener('click', this._onPrev);
+    if (this.nextBtn) this.nextBtn.removeEventListener('click', this._onNext);
+    
+    if (this._dotHandlers) {
+      this._dotHandlers.forEach(({ dot, handler }) => {
+        dot.removeEventListener('click', handler);
+      });
+    }
+
+    if (this.autoplayToggle) this.autoplayToggle.removeEventListener('click', this._onToggle);
+    if (this._onKeydown) this.container.removeEventListener('keydown', this._onKeydown);
+    
+    document.removeEventListener('visibilitychange', this._onVisibilityChange);
+    if (this._onFocusIn) this.container.removeEventListener('focusin', this._onFocusIn);
+    if (this._onFocusOut) this.container.removeEventListener('focusout', this._onFocusOut);
+
+    if (this.announcer) this.announcer.remove();
+
+    this.container.dispatchEvent(new CustomEvent('slider:destroy'));
+  }
+}
+
+
+/**
+ * ==========================================
+ * IMPROVED UNIT TESTS SUITE (Point 5 & 6)
+ * ==========================================
+ */
+function runHeroSliderTests() {
+  console.group('🧪 UNP Tours - HeroSlider Unit Tests');
+
+  const testWrapper = document.createElement('div');
+  testWrapper.id = 'hero-test-container';
+  testWrapper.innerHTML = `
+    <div class="unp-hero">
+      <div class="unp-slider-wrapper">
+        <div class="unp-slide">Slide 1</div>
+        <div class="unp-slide">Slide 2</div>
+        <div class="unp-slide">Slide 3</div>
+      </div>
+      <button class="slider-prev"></button>
+      <button class="slider-next"></button>
+      <div class="slider-dots"><button class="dot"></button><button class="dot"></button><button class="dot"></button></div>
+      <div class="slide-counter"></div>
+      <button class="autoplay-toggle"></button>
+      <div class="progress-bar"></div>
+    </div>
+  `;
+  document.body.appendChild(testWrapper);
+
+  const slider = new HeroSlider('.unp-hero', { autoplay: false });
+
+  // Test 1: Slide Count
+  const t1 = slider.getSlideCount() === 3;
+  console.log(t1 ? '✅ Pass: Slide count ni 3' : '❌ Fail: Slide count si sahihi');
+
+  // Test 2: Initial Index
+  const t2 = slider.getCurrentIndex() === 0;
+  console.log(t2 ? '✅ Pass: Initial index ni 0' : '❌ Fail: Initial index si 0');
+
+  // Test 3: Navigation Next
+  slider.goToNext();
+  const t3 = slider.getCurrentIndex() === 1;
+  console.log(t3 ? '✅ Pass: goToNext imefanya kazi' : '❌ Fail: goToNext haijafanya kazi');
+
+  // Test 4: Destroy & Timer Null Check (Point 6)
+  slider.destroy();
+  const t4 = slider.timer === null;
+  console.log(t4 ? '✅ Pass: destroy() imeweka timer kuwa null' : '❌ Fail: timer sio null baada ya destroy()');
+
+  testWrapper.remove();
+  console.groupEnd();
+}

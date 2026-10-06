@@ -1,0 +1,66 @@
+  /* --- Missing Utilities: Aspect Ratio & Object Fit --- */
+  .aspect-square { aspect-ratio: 1 / 1; }
+  .aspect-video { aspect-ratio: 16 / 9; }
+  .aspect-auto { aspect-ratio: auto; }
+
+  .object-cover { object-fit: cover; }
+  .object-contain { object-fit: contain; }
+  .object-fill { object-fit: fill; }
+  .object-none { object-fit: none; }
+  .object-scale-down { object-fit: scale-down; }
+
+  .object-center { object-position: center; }
+  .object-top { object-position: top; }
+  .object-bottom { object-position: bottom; }
+  .object-left { object-position: left; }
+  .object-right { object-position: right; }
+
+  /* --- Missing Utilities: Overflow & Z-Index --- */
+  .overflow-auto { overflow: auto; }
+  .overflow-hidden { overflow: hidden; }
+  .overflow-scroll { overflow: scroll; }
+  .overflow-visible { overflow: visible; }
+  .overflow-clip { overflow: clip; }
+
+  .overflow-x-auto { overflow-x: auto; }
+  .overflow-x-hidden { overflow-x: hidden; }
+  .overflow-y-auto { overflow-y: auto; }
+  .overflow-y-hidden { overflow-y: hidden; }
+
+  .z-auto { z-index: auto; }
+  .z-0 { z-index: 0; }
+  .z-10 { z-index: 10; }
+  .z-20 { z-index: 20; }
+  .z-30 { z-index: 30; }
+  .z-40 { z-index: 40; }
+  .z-50 { z-index: 50; }
+  .z-100 { z-index: 100; }
+
+  /* --- Accessibility Enhancements --- */
+  .focus-ring {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--color-gold);
+  }
+
+  .focus-outline {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+}
+
+/* --- Feature Queries (@supports Fallbacks) --- */
+@supports not (transform: rotate(45deg)) {
+  .rotate-45 { transform: none; }
+  .rotate-90 { transform: none; }
+  .rotate-180 { transform: none; }
+}
+
+@supports not (aspect-ratio: 1 / 1) {
+  .aspect-square { width: 100%; height: auto; }
+  .aspect-video { width: 100%; height: auto; }
+}
+
+@supports not (backdrop-filter: blur(8px)) {
+  .backdrop-blur { background-color: rgba(17, 24, 39, 0.9); }
+}
